@@ -1,0 +1,1031 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Mes Rendez-vous{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/header.css') }}">
+<style>
+    .appointment-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        margin-bottom: 15px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .appointment-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .appointment-header {
+        padding: 15px 20px;
+        background-color: var(--primary-color);
+        color: white;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .appointment-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .appointment-status {
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background-color: rgba(243, 156, 18, 0.2);
+        color: #f39c18;
+    }
+
+    .status-accepted {
+        background-color: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+    }
+
+    .status-rejected {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+    }
+
+    .status-completed {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: #3498db;
+    }
+
+    .status-cancelled {
+        background-color: rgba(149, 165, 166, 0.2);
+        color: #95a5a6;
+    }
+
+    .appointment-body {
+        padding: 20px;
+    }
+
+    .appointment-info {
+        display: flex;
+        margin-bottom: 15px;
+    }
+
+    .doctor-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
+    }
+
+    .doctor-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .appointment-details {
+        flex: 1;
+    }
+
+    .doctor-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+    }
+
+    .doctor-specialty {
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+
+    .appointment-time {
+        display: flex;
+        align-items: center;
+        color: var(--text-color);
+        font-size: 0.95rem;
+    }
+
+    .appointment-time i {
+        margin-right: 8px;
+        color: var(--primary-color);
+    }
+
+    .appointment-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-action {
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .btn-action i {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #1a5276;
+        color: white;
+    }
+
+    .btn-danger {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-danger:hover {
+        background-color: rgba(231, 76, 60, 0.2);
+        color: #e74c3c;
+    }
+
+    .btn-secondary {
+        background-color: rgba(52, 152, 219, 0.1);
+        color: var(--primary-color);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background-color: rgba(52, 152, 219, 0.2);
+        color: var(--primary-color);
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 0;
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #e0e0e0;
+        margin-bottom: 15px;
+    }
+
+    .empty-state h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: var(--text-color);
+    }
+
+    .empty-state p {
+        color: var(--text-light);
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        margin-bottom: 20px;
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        margin-right: 10px;
+        color: var(--primary-color);
+    }
+
+    .appointment-tabs {
+        display: flex;
+        margin-bottom: 20px;
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .appointment-tab {
+        flex: 1;
+        text-align: center;
+        padding: 15px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text-light);
+        transition: var(--transition);
+        border-bottom: 3px solid transparent;
+    }
+
+    .appointment-tab.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+        background-color: rgba(36, 113, 163, 0.05);
+    }
+
+    .appointment-tab:hover:not(.active) {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .appointment-tab i {
+        margin-right: 8px;
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Styles pour les badges des onglets */
+    .tab-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 20px;
+        height: 20px;
+        padding: 0 6px;
+        margin-left: 8px;
+        background-color: rgba(36, 113, 163, 0.2);
+        color: var(--primary-color);
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .appointment-tab.active .tab-badge {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    /* Styles pour la barre de recherche et filtres */
+    .search-filter-bar {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px 15px 10px 40px;
+        border: 1px solid #e0e0e0;
+        border-radius: 30px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
+    }
+
+    .search-box input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(36, 113, 163, 0.1);
+        outline: none;
+    }
+
+    .filter-box {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .date-filter {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .date-filter label {
+        font-weight: 500;
+        color: var(--text-color);
+        white-space: nowrap;
+    }
+
+    .date-input {
+        padding: 8px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .date-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(36, 113, 163, 0.1);
+        outline: none;
+    }
+
+    .filter-reset-btn {
+        background-color: transparent;
+        color: var(--text-light);
+        border: 1px solid #e0e0e0;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .filter-reset-btn:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: var(--text-color);
+    }
+
+    /* Styles pour les détails du rendez-vous */
+    .appointment-details-modal {
+        position: fixed;
+        top: 0;
+        right: -400px;
+        width: 400px;
+        height: 100vh;
+        background-color: var(--white);
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    }
+
+    .appointment-details-modal.open {
+        right: 0;
+    }
+
+    .modal-header {
+        padding: 20px;
+        background-color: var(--primary-color);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.2rem;
+    }
+
+    .close-modal {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .modal-body {
+        padding: 20px;
+    }
+
+    .modal-section {
+        margin-bottom: 20px;
+    }
+
+    .modal-section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .modal-section-title i {
+        color: var(--primary-color);
+    }
+
+    .detail-item {
+        display: flex;
+        margin-bottom: 8px;
+    }
+
+    .detail-label {
+        width: 120px;
+        font-weight: 500;
+        color: var(--text-light);
+    }
+
+    .detail-value {
+        flex: 1;
+        color: var(--text-color);
+    }
+
+    .modal-actions {
+        padding: 20px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        gap: 10px;
+    }
+
+    /* Styles pour les boutons "Voir détails" */
+    .btn-details {
+        background-color: rgba(52, 152, 219, 0.1);
+        color: var(--primary-color);
+        border: 1px solid rgba(52, 152, 219, 0.3);
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn-details:hover {
+        background-color: rgba(52, 152, 219, 0.2);
+    }
+
+    /* Overlay pour le modal */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+    }
+
+    .modal-overlay.open {
+        display: block;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .search-filter-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box, .filter-box {
+            width: 100%;
+        }
+
+        .appointment-details-modal {
+            width: 100%;
+            right: -100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Inclure le header commun -->
+{% include 'patient/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    {% include 'patient/partials/sidebar.html' %}
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title"><i class="fas fa-calendar-alt"></i> 📅 Mes Rendez-vous</h1>
+            <p class="page-subtitle">Gérez vos rendez-vous médicaux et vos consultations</p>
+        </div>
+
+        <!-- Barre de recherche et filtres -->
+        <div class="search-filter-bar">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="appointment-search" placeholder="Rechercher par nom de médecin ou spécialité...">
+            </div>
+            <div class="filter-box">
+                <div class="date-filter">
+                    <label for="date-filter"><i class="fas fa-filter"></i> Filtrer par date:</label>
+                    <input type="date" id="date-filter" class="date-input">
+                </div>
+                <button id="reset-filters" class="filter-reset-btn">
+                    <i class="fas fa-redo-alt"></i> Réinitialiser
+                </button>
+            </div>
+        </div>
+
+        <div class="dashboard-content">
+            <!-- Onglets de rendez-vous -->
+            <div class="appointment-tabs">
+                <div class="appointment-tab active" data-tab="upcoming">
+                    <i class="fas fa-calendar-day"></i> À venir
+                    <span class="tab-badge" id="upcoming-badge">
+                        {% set upcoming_count = 0 %}
+                        {% for appointment in appointments %}
+                            {% if appointment.status == 'accepted' and appointment.date_time > now %}
+                                {% set upcoming_count = upcoming_count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ upcoming_count }}
+                    </span>
+                </div>
+                <div class="appointment-tab" data-tab="pending">
+                    <i class="fas fa-clock"></i> En attente
+                    <span class="tab-badge" id="pending-badge">
+                        {% set pending_count = 0 %}
+                        {% for appointment in appointments %}
+                            {% if appointment.status == 'pending' %}
+                                {% set pending_count = pending_count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ pending_count }}
+                    </span>
+                </div>
+                <div class="appointment-tab" data-tab="past">
+                    <i class="fas fa-history"></i> Passés
+                    <span class="tab-badge" id="past-badge">
+                        {% set past_count = 0 %}
+                        {% for appointment in appointments %}
+                            {% if (appointment.status == 'accepted' or appointment.status == 'completed') and appointment.date_time <= now %}
+                                {% set past_count = past_count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ past_count }}
+                    </span>
+                </div>
+                <div class="appointment-tab" data-tab="cancelled">
+                    <i class="fas fa-ban"></i> Annulés
+                    <span class="tab-badge" id="cancelled-badge">
+                        {% set cancelled_count = 0 %}
+                        {% for appointment in appointments %}
+                            {% if appointment.status == 'cancelled' or appointment.status == 'rejected' %}
+                                {% set cancelled_count = cancelled_count + 1 %}
+                            {% endif %}
+                        {% endfor %}
+                        {{ cancelled_count }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Contenu des onglets -->
+            <!-- Rendez-vous à venir -->
+            <div id="upcoming" class="tab-content active">
+                {% set upcoming_count = 0 %}
+                {% for appointment in appointments %}
+                    {% if appointment.status == 'accepted' %}
+                        {% set upcoming_count = upcoming_count + 1 %}
+                        <div class="appointment-card upcoming-appointment">
+                            <div class="appointment-header">
+                                <h3>Rendez-vous #{{ appointment.id }}</h3>
+                                <span class="appointment-status status-accepted">
+                                    {% if appointment.date_time <= now %}
+                                        En cours
+                                    {% else %}
+                                        Confirmé
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="appointment-body">
+                                <div class="appointment-info">
+                                    <div class="doctor-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Doctor">
+                                    </div>
+                                    <div class="appointment-details">
+                                        <div class="doctor-name">Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</div>
+                                        <div class="doctor-specialty">{{ appointment.doctor.speciality }}</div>
+                                        <div class="appointment-time">
+                                            <i class="far fa-calendar-alt"></i>
+                                            <span>{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="appointment-actions">
+                                    {% if appointment.video_room_id %}
+                                    <a href="{{ url_for('patient.doctor_patient_space') }}?appointment_id={{ appointment.id }}&room_id={{ appointment.video_room_id }}" class="btn-action btn-primary">
+                                        <i class="fas fa-video"></i> Rejoindre la consultation
+                                    </a>
+                                    {% else %}
+                                    <a href="{{ url_for('patient.doctor_patient_space') }}" class="btn-action btn-primary">
+                                        <i class="fas fa-video"></i> Accéder à la consultation
+                                    </a>
+                                    {% endif %}
+                                    <button class="btn-details" onclick="showAppointmentDetails({{ appointment.id }}, '{{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}', '{{ appointment.doctor.speciality }}', '{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}')">
+                                        <i class="fas fa-info-circle"></i> Voir détails
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if upcoming_count == 0 %}
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <h3>Aucun rendez-vous à venir</h3>
+                    <p>Vous n'avez pas de rendez-vous confirmés à venir.</p>
+                    <a href="{{ url_for('patient.find_doctor') }}" class="btn-action btn-primary">
+                        <i class="fas fa-search"></i> Trouver un médecin
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Rendez-vous passés -->
+            <div id="past" class="tab-content">
+                {% set past_count = 0 %}
+                {% for appointment in appointments %}
+                    {% if appointment.status == 'completed' %}
+                        {% set past_count = past_count + 1 %}
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <h3>Rendez-vous #{{ appointment.id }}</h3>
+                                <span class="appointment-status status-completed">Terminé</span>
+                            </div>
+                            <div class="appointment-body">
+                                <div class="appointment-info">
+                                    <div class="doctor-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Doctor">
+                                    </div>
+                                    <div class="appointment-details">
+                                        <div class="doctor-name">Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</div>
+                                        <div class="doctor-specialty">{{ appointment.doctor.speciality }}</div>
+                                        <div class="appointment-time">
+                                            <i class="far fa-calendar-alt"></i>
+                                            <span>{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="appointment-actions">
+                                    <a href="#" class="btn-action btn-secondary">
+                                        <i class="fas fa-file-medical"></i> Voir la prescription
+                                    </a>
+                                    <button class="btn-details" onclick="showAppointmentDetails({{ appointment.id }}, '{{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}', '{{ appointment.doctor.speciality }}', '{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}')">
+                                        <i class="fas fa-info-circle"></i> Voir détails
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if past_count == 0 %}
+                <div class="empty-state">
+                    <i class="fas fa-history"></i>
+                    <h3>Aucun rendez-vous passé</h3>
+                    <p>Vous n'avez pas encore eu de consultations.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Rendez-vous en attente -->
+            <div id="pending" class="tab-content">
+                {% set pending_count = 0 %}
+                {% for appointment in appointments %}
+                    {% if appointment.status == 'pending' %}
+                        {% set pending_count = pending_count + 1 %}
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <h3>Rendez-vous #{{ appointment.id }}</h3>
+                                <span class="appointment-status status-pending">En attente</span>
+                            </div>
+                            <div class="appointment-body">
+                                <div class="appointment-info">
+                                    <div class="doctor-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Doctor">
+                                    </div>
+                                    <div class="appointment-details">
+                                        <div class="doctor-name">Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</div>
+                                        <div class="doctor-specialty">{{ appointment.doctor.speciality }}</div>
+                                        <div class="appointment-time">
+                                            <i class="far fa-calendar-alt"></i>
+                                            <span>{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="appointment-actions">
+                                    <button class="btn-action btn-danger" onclick="cancelAppointment({{ appointment.id }})">
+                                        <i class="fas fa-times"></i> Annuler
+                                    </button>
+                                    <button class="btn-details" onclick="showAppointmentDetails({{ appointment.id }}, '{{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}', '{{ appointment.doctor.speciality }}', '{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}')">
+                                        <i class="fas fa-info-circle"></i> Voir détails
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if pending_count == 0 %}
+                <div class="empty-state">
+                    <i class="fas fa-clock"></i>
+                    <h3>Aucun rendez-vous en attente</h3>
+                    <p>Vous n'avez pas de demandes de rendez-vous en attente de confirmation.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Rendez-vous annulés -->
+            <div id="cancelled" class="tab-content">
+                {% set cancelled_count = 0 %}
+                {% for appointment in appointments %}
+                    {% if appointment.status == 'cancelled' or appointment.status == 'rejected' %}
+                        {% set cancelled_count = cancelled_count + 1 %}
+                        <div class="appointment-card">
+                            <div class="appointment-header">
+                                <h3>Rendez-vous #{{ appointment.id }}</h3>
+                                <span class="appointment-status status-cancelled">
+                                    {% if appointment.status == 'cancelled' %}Annulé{% else %}Refusé{% endif %}
+                                </span>
+                            </div>
+                            <div class="appointment-body">
+                                <div class="appointment-info">
+                                    <div class="doctor-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Doctor">
+                                    </div>
+                                    <div class="appointment-details">
+                                        <div class="doctor-name">Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</div>
+                                        <div class="doctor-specialty">{{ appointment.doctor.speciality }}</div>
+                                        <div class="appointment-time">
+                                            <i class="far fa-calendar-alt"></i>
+                                            <span>{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="appointment-actions">
+                                    <a href="{{ url_for('patient.find_doctor') }}" class="btn-action btn-secondary">
+                                        <i class="fas fa-redo"></i> Reprendre rendez-vous
+                                    </a>
+                                    <button class="btn-details" onclick="showAppointmentDetails({{ appointment.id }}, '{{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}', '{{ appointment.doctor.speciality }}', '{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}')">
+                                        <i class="fas fa-info-circle"></i> Voir détails
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if cancelled_count == 0 %}
+                <div class="empty-state">
+                    <i class="fas fa-ban"></i>
+                    <h3>Aucun rendez-vous annulé</h3>
+                    <p>Vous n'avez pas de rendez-vous annulés ou refusés.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Modal de détails du rendez-vous -->
+<div class="modal-overlay" id="modal-overlay"></div>
+<div class="appointment-details-modal" id="appointment-details-modal">
+    <div class="modal-header">
+        <h3><i class="fas fa-info-circle"></i> Détails du rendez-vous</h3>
+        <button class="close-modal" id="close-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+        <div class="modal-section">
+            <div class="modal-section-title">
+                <i class="fas fa-user-md"></i> Informations du médecin
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Nom:</div>
+                <div class="detail-value" id="doctor-name"></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Spécialité:</div>
+                <div class="detail-value" id="doctor-specialty"></div>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">
+                <i class="fas fa-calendar-alt"></i> Informations du rendez-vous
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Date et heure:</div>
+                <div class="detail-value" id="appointment-datetime"></div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Type:</div>
+                <div class="detail-value">Téléconsultation</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Durée:</div>
+                <div class="detail-value">30 minutes</div>
+            </div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">
+                <i class="fas fa-clipboard-list"></i> Préparation
+            </div>
+            <p>Pour une téléconsultation efficace, veuillez:</p>
+            <ul>
+                <li>Vous assurer d'avoir une connexion internet stable</li>
+                <li>Préparer vos documents médicaux récents</li>
+                <li>Être dans un endroit calme et bien éclairé</li>
+                <li>Tester votre caméra et microphone à l'avance</li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal-actions">
+        <button class="btn-action btn-primary" id="close-modal-btn">
+            <i class="fas fa-check"></i> Compris
+        </button>
+    </div>
+</div>
+
+{% block extra_js %}
+<!-- Scripts pour le header -->
+<script src="{{ url_for('static', filename='js/patient/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/realtime_updates.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser les états vides
+        updateEmptyStates();
+
+        // Toggle sidebar
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-collapsed');
+            mainContent.classList.toggle('main-content-expanded');
+        });
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-open');
+        });
+
+        // Tabs functionality
+        const tabs = document.querySelectorAll('.appointment-tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding content
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Recherche et filtrage
+        const searchInput = document.getElementById('appointment-search');
+        const dateFilter = document.getElementById('date-filter');
+        const resetFiltersBtn = document.getElementById('reset-filters');
+        const appointmentCards = document.querySelectorAll('.appointment-card');
+
+        // Fonction de recherche
+        searchInput.addEventListener('input', filterAppointments);
+        dateFilter.addEventListener('change', filterAppointments);
+
+        // Réinitialiser les filtres
+        resetFiltersBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            dateFilter.value = '';
+            filterAppointments();
+        });
+
+        function filterAppointments() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const dateValue = dateFilter.value;
+
+            appointmentCards.forEach(card => {
+                const doctorName = card.querySelector('.doctor-name').textContent.toLowerCase();
+                const specialty = card.querySelector('.doctor-specialty').textContent.toLowerCase();
+                const dateTimeText = card.querySelector('.appointment-time span').textContent;
+                const appointmentDate = dateTimeText.split(' à ')[0]; // Extraire la date (format: DD/MM/YYYY)
+
+                // Convertir la date du rendez-vous au format YYYY-MM-DD pour la comparaison
+                const dateParts = appointmentDate.split('/');
+                const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+
+                const matchesSearch = doctorName.includes(searchTerm) || specialty.includes(searchTerm);
+                const matchesDate = !dateValue || formattedDate === dateValue;
+
+                if (matchesSearch && matchesDate) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Vérifier si des cartes sont visibles dans l'onglet actif
+            updateEmptyStates();
+        }
+
+        function updateEmptyStates() {
+            const activeTab = document.querySelector('.tab-content.active');
+            const tabId = activeTab.id;
+
+            // Sélectionner toutes les cartes visibles dans l'onglet actif
+            const allCards = activeTab.querySelectorAll('.appointment-card');
+            let visibleCards = 0;
+
+            // Compter les cartes qui ne sont pas cachées
+            allCards.forEach(card => {
+                if (card.style.display !== 'none') {
+                    visibleCards++;
+                }
+            });
+
+            const emptyState = activeTab.querySelector('.empty-state');
+
+            // Si aucune carte n'est visible et qu'il y a un état vide, l'afficher
+            if (visibleCards === 0 && emptyState) {
+                emptyState.style.display = 'flex';
+            } else if (emptyState) {
+                emptyState.style.display = 'none';
+            }
+
+            // Vérification spécifique pour l'onglet "À venir"
+            if (tabId === 'upcoming') {
+                const hasUpcomingAppointments = document.querySelectorAll('.upcoming-appointment').length > 0;
+                if (hasUpcomingAppointments && emptyState) {
+                    // S'il y a des rendez-vous à venir, ne jamais afficher le message "Aucun rendez-vous à venir"
+                    emptyState.style.display = 'none';
+                }
+            }
+        }
+
+        // Modal de détails
+        const modal = document.getElementById('appointment-details-modal');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const closeModalBtn = document.getElementById('close-modal');
+        const closeModalBtnAction = document.getElementById('close-modal-btn');
+
+        closeModalBtn.addEventListener('click', closeModal);
+        closeModalBtnAction.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', closeModal);
+
+        function closeModal() {
+            modal.classList.remove('open');
+            modalOverlay.classList.remove('open');
+        }
+    });
+
+    function cancelAppointment(appointmentId) {
+        if (confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?')) {
+            window.location.href = `/patient/cancel-appointment/${appointmentId}`;
+        }
+    }
+
+    function showAppointmentDetails(appointmentId, doctorName, specialty, dateTime) {
+        // Remplir les informations du modal
+        document.getElementById('doctor-name').textContent = doctorName;
+        document.getElementById('doctor-specialty').textContent = specialty;
+        document.getElementById('appointment-datetime').textContent = dateTime;
+
+        // Afficher le modal
+        document.getElementById('appointment-details-modal').classList.add('open');
+        document.getElementById('modal-overlay').classList.add('open');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,75 @@
+<div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <span class="sidebar-title">Menu</span>
+        <button id="sidebar-toggle" class="sidebar-toggle">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-menu">
+        <div class="menu-category">Santé Connectée</div>
+        <a href="{{ url_for('patient.dashboard') }}" class="menu-item {% if request.endpoint == 'patient.dashboard' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span class="menu-text">Accueil</span>
+        </a>
+        <a href="{{ url_for('patient.sensor_guide') }}" class="menu-item {% if request.endpoint == 'patient.sensor_guide' %}active{% endif %}">
+            <i class="fas fa-heartbeat"></i>
+            <span class="menu-text">Guide des Capteurs</span>
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-brain"></i>
+            <span class="menu-text">Analyse IA de Santé</span>
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-robot"></i>
+            <span class="menu-text">Assistant Virtuel</span>
+        </a>
+
+        <div class="menu-category">Suivi Médical</div>
+        <a href="{{ url_for('patient.find_doctor') }}" class="menu-item {% if request.endpoint == 'patient.find_doctor' %}active{% endif %}">
+            <i class="fas fa-user-md"></i>
+            <span class="menu-text">Trouver un Médecin</span>
+        </a>
+        <a href="{{ url_for('patient.appointments') }}" class="menu-item {% if request.endpoint == 'patient.appointments' %}active{% endif %}">
+            <i class="fas fa-calendar-alt"></i>
+            <span class="menu-text">Mes Rendez-vous</span>
+        </a>
+        <a href="{{ url_for('patient.doctor_patient_space') }}" class="menu-item {% if request.endpoint == 'patient.doctor_patient_space' %}active{% endif %}">
+            <i class="fas fa-comments"></i>
+            <span class="menu-text">Espace Médecin-Patient</span>
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-notes-medical"></i>
+            <span class="menu-text">Mes Prescriptions</span>
+        </a>
+
+        <div class="menu-category">Ressources</div>
+        <a href="{{ url_for('patient.itinerary') }}" class="menu-item {% if request.endpoint == 'patient.itinerary' %}active{% endif %}">
+            <i class="fas fa-map-marked-alt"></i>
+            <span class="menu-text">Itinéraires</span>
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-folder-open"></i>
+            <span class="menu-text">Dossier Médical</span>
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-pills"></i>
+            <span class="menu-text">Gestion des Médicaments</span>
+        </a>
+    </div>
+
+    <div class="sidebar-footer">
+        <a href="{{ url_for('patient.profile') }}" class="menu-item {% if request.endpoint == 'patient.profile' %}active{% endif %}">
+            <i class="fas fa-user-circle"></i>
+            <span class="menu-text">Profil</span>
+        </a>
+        <a href="#" class="menu-item">
+            <i class="fas fa-cog"></i>
+            <span class="menu-text">Paramètres</span>
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="menu-item">
+            <i class="fas fa-sign-out-alt"></i>
+            <span class="menu-text">Déconnexion</span>
+        </a>
+    </div>
+</div>

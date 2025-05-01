@@ -1,0 +1,185 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Toutes les notifications{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/header.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/notifications.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+{% include 'patient/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    {% include 'patient/partials/sidebar.html' %}
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Toutes les notifications</h1>
+            <p class="page-subtitle">Historique de vos notifications</p>
+        </div>
+
+        <div class="notifications-container">
+            <div class="notifications-header">
+                <div class="notifications-count">
+                    {{ notifications|length }} notification{% if notifications|length > 1 %}s{% endif %}
+                </div>
+                <div class="notifications-actions">
+                    <button id="mark-all-read" class="btn-mark-all">Tout marquer comme lu</button>
+                </div>
+            </div>
+
+            <div class="notifications-list">
+                {% if notifications %}
+                    {% for notification in notifications %}
+                        <div class="notification-item {% if not notification.is_read %}notification-unread{% endif %}" 
+                             data-notification-id="{{ notification.id }}"
+                             data-notification-type="{{ notification.type }}">
+                            <div class="notification-icon">
+                                {% if notification.type == 'appointment' %}
+                                    <i class="fas fa-calendar-check"></i>
+                                {% elif notification.type == 'appointment_accepted' %}
+                                    <i class="fas fa-check-circle"></i>
+                                {% elif notification.type == 'appointment_rejected' %}
+                                    <i class="fas fa-times-circle"></i>
+                                {% elif notification.type == 'appointment_cancelled' %}
+                                    <i class="fas fa-calendar-times"></i>
+                                {% elif notification.type == 'appointment_completed' %}
+                                    <i class="fas fa-clipboard-check"></i>
+                                {% elif notification.type == 'appointment_reminder' %}
+                                    <i class="fas fa-clock"></i>
+                                {% elif notification.type == 'appointment_deleted' %}
+                                    <i class="fas fa-trash-alt"></i>
+                                {% elif notification.type == 'message' %}
+                                    <i class="fas fa-envelope"></i>
+                                {% elif notification.type == 'prescription' %}
+                                    <i class="fas fa-prescription"></i>
+                                {% elif notification.type == 'test' %}
+                                    <i class="fas fa-vial"></i>
+                                {% else %}
+                                    <i class="fas fa-bell"></i>
+                                {% endif %}
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">{{ notification.title }}</div>
+                                <div class="notification-text">{{ notification.content }}</div>
+                                <div class="notification-time">{{ notification.created_at.strftime('%d/%m/%Y à %H:%M') }}</div>
+                            </div>
+                            <div class="notification-actions">
+                                {% if not notification.is_read %}
+                                    <button class="btn-mark-read" data-id="{{ notification.id }}">Marquer comme lu</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="notification-empty">
+                        <div class="notification-icon">
+                            <i class="fas fa-bell-slash"></i>
+                        </div>
+                        <div class="notification-content">
+                            <div class="notification-text">Aucune notification pour le moment</div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/patient/header.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Marquer une notification comme lue
+    const markReadButtons = document.querySelectorAll('.btn-mark-read');
+    markReadButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const notificationId = this.getAttribute('data-id');
+            markNotificationAsRead(notificationId, this);
+        });
+    });
+
+    // Marquer toutes les notifications comme lues
+    const markAllReadButton = document.getElementById('mark-all-read');
+    if (markAllReadButton) {
+        markAllReadButton.addEventListener('click', function() {
+            markAllNotificationsAsRead();
+        });
+    }
+
+    // Fonction pour marquer une notification comme lue
+    function markNotificationAsRead(notificationId, button) {
+        fetch(`/api/notifications/${notificationId}/read`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Notification marquée comme lue:', data);
+            
+            // Mettre à jour l'interface
+            const notificationItem = button.closest('.notification-item');
+            notificationItem.classList.remove('notification-unread');
+            button.remove();
+            
+            // Mettre à jour le badge dans le header
+            updateNotificationBadge();
+        })
+        .catch(error => console.error('Erreur lors du marquage de la notification:', error));
+    }
+
+    // Fonction pour marquer toutes les notifications comme lues
+    function markAllNotificationsAsRead() {
+        fetch('/api/notifications/mark-all-read', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Toutes les notifications marquées comme lues:', data);
+            
+            // Mettre à jour l'interface
+            const unreadNotifications = document.querySelectorAll('.notification-item.notification-unread');
+            unreadNotifications.forEach(notification => {
+                notification.classList.remove('notification-unread');
+                const button = notification.querySelector('.btn-mark-read');
+                if (button) button.remove();
+            });
+            
+            // Mettre à jour le badge dans le header
+            updateNotificationBadge();
+        })
+        .catch(error => console.error('Erreur lors du marquage des notifications:', error));
+    }
+
+    // Fonction pour mettre à jour le badge de notification
+    function updateNotificationBadge() {
+        fetch('/api/notifications/unread-count')
+            .then(response => response.json())
+            .then(data => {
+                const badge = document.querySelector('.notification-badge');
+                if (badge) {
+                    badge.textContent = data.count;
+                    
+                    if (data.count === 0) {
+                        badge.style.display = 'none';
+                    } else {
+                        badge.style.display = 'flex';
+                    }
+                }
+            })
+            .catch(error => console.error('Erreur lors de la récupération du nombre de notifications non lues:', error));
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,213 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Consultation{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/virtual_office.css') }}">
+{% endblock %}
+
+{% block body_attributes %}
+data-appointment-id="{{ appointment.id }}"
+data-patient-id="{{ appointment.patient.id }}"
+{% endblock %}
+
+{% block content %}
+{% include 'doctor/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">CLINIC</div>
+            <a href="{{ url_for('doctor.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="{{ url_for('doctor.patients') }}" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span class="menu-text">Patients</span>
+            </a>
+            <a href="{{ url_for('doctor.virtual_office') }}" class="menu-item active">
+                <i class="fas fa-laptop-medical"></i>
+                <span class="menu-text">Cabinet Virtuel</span>
+            </a>
+            <a href="{{ url_for('doctor.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Rendez-vous</span>
+            </a>
+
+            <div class="menu-category">INTERACTION</div>
+            <a href="{{ url_for('doctor.smart_agenda') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Agenda Intelligent</span>
+            </a>
+            <a href="{{ url_for('doctor.waiting_room') }}" class="menu-item">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="menu-text">File d'Attente</span>
+            </a>
+
+            <div class="menu-category">RÉSEAU COLLABORATIF</div>
+            <a href="{{ url_for('doctor.medical_network') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Réseau Médical</span>
+            </a>
+            <a href="{{ url_for('doctor.hospital_references') }}" class="menu-item">
+                <i class="fas fa-hospital"></i>
+                <span class="menu-text">Références Hospitalières</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('doctor.settings') }}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="virtual-office-container">
+            <!-- Onglets de navigation -->
+            <div class="consultation-tabs">
+                <div class="tab-item active">Consultation</div>
+                <div class="tab-item">Historique</div>
+                <div class="tab-item">Prescription</div>
+            </div>
+
+            <!-- Informations du patient et zone de consultation -->
+            <div class="patient-consultation-area">
+                <!-- En-tête avec informations patient -->
+                <div class="patient-header">
+                    <div class="patient-main-info">
+                        <div class="patient-label">Patient</div>
+                        <h2 class="patient-name" data-patient-id="{{ appointment.patient.id }}">
+                            {{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}
+                        </h2>
+                        <div class="appointment-info">
+                            <span class="appointment-date">
+                                <i class="far fa-calendar"></i> {{ appointment.date_time.strftime('%d/%m/%Y') }}
+                            </span>
+                            <span class="appointment-time">
+                                <i class="far fa-clock"></i> {{ appointment.date_time.strftime('%H:%M') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="patient-details-grid">
+                        <div class="patient-detail-item">
+                            <div class="detail-label">Genre</div>
+                            <div class="detail-value">
+                                {% if appointment.patient.gender %}
+                                    {{ appointment.patient.gender }}
+                                {% else %}
+                                    Non spécifié
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="patient-detail-item">
+                            <div class="detail-label">Groupe sanguin</div>
+                            <div class="detail-value">
+                                {% if appointment.patient.blood_type %}
+                                    {{ appointment.patient.blood_type }}
+                                {% else %}
+                                    Non spécifié
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="patient-detail-item">
+                            <div class="detail-label">Allergies</div>
+                            <div class="detail-value">
+                                {% if appointment.patient.allergies %}
+                                    {{ appointment.patient.allergies }}
+                                {% else %}
+                                    Aucune connue
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="patient-detail-item">
+                            <div class="detail-label">Maladies chroniques</div>
+                            <div class="detail-value">
+                                {% if appointment.patient.chronic_diseases %}
+                                    {{ appointment.patient.chronic_diseases }}
+                                {% else %}
+                                    Aucune connue
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="consultation-actions">
+                        <a href="{{ url_for('doctor.prescription', appointment_id=appointment.id) }}" class="action-btn">
+                            <i class="fas fa-prescription"></i> Prescription
+                        </a>
+                        <a href="{{ url_for('doctor.virtual_office', appointment_id=appointment.id) }}" class="action-btn">
+                            <i class="fas fa-laptop-medical"></i> Cabinet virtuel
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Zone principale de consultation -->
+                <div class="consultation-main-area">
+                    <!-- Zone vidéo -->
+                    <div class="video-consultation-area">
+                        <div class="video-container">
+                            <div class="main-video-stream">
+                                <div class="video-placeholder">
+                                    <i class="fas fa-video"></i>
+                                    <p>Prêt à démarrer la consultation vidéo avec {{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Contrôles vidéo -->
+                            <div class="video-controls">
+                                {% if appointment.video_room_id %}
+                                <a href="{{ url_for('video_room', room_id=appointment.video_room_id) }}" class="join-consultation-btn">
+                                    <i class="fas fa-video"></i> Rejoindre la consultation
+                                </a>
+                                {% else %}
+                                <div class="alert alert-warning">
+                                    Le lien de consultation vidéo n'a pas encore été généré.
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notes de consultation -->
+                    <div class="consultation-notes">
+                        <h3>Notes de consultation</h3>
+                        <form action="{{ url_for('doctor.save_notes', appointment_id=appointment.id) }}" method="post" class="notes-form">
+                            <textarea name="notes" placeholder="Saisissez vos notes de consultation ici...">{{ appointment.notes }}</textarea>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Enregistrer les notes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<!-- Script de notifications -->
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+<!-- Script du cabinet virtuel -->
+<script src="{{ url_for('static', filename='js/doctor/virtual_office.js') }}"></script>
+{% endblock %}

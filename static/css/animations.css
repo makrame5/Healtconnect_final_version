@@ -1,0 +1,247 @@
+/* Animations pour les transitions entre les onglets */
+
+/* Animation de fondu */
+.fade-transition {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.fade-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-exit {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.fade-exit-active {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+/* Animation de glissement */
+.slide-transition {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.slide-enter {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.slide-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.slide-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.slide-exit-active {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+/* Animation de zoom */
+.zoom-transition {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.zoom-enter {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+.zoom-enter-active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.zoom-exit {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.zoom-exit-active {
+    opacity: 0;
+    transform: scale(1.05);
+}
+
+/* Animation pour les onglets */
+.tab-content {
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-pane {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tab-pane:not(.active) {
+    opacity: 0;
+    transform: translateY(10px);
+    height: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.tab-pane.active {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+}
+
+/* Animation pour les boutons d'onglet */
+.tab-item, .tab-button {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.tab-item::after, .tab-button::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background-color: var(--primary-color);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.tab-item.active::after, .tab-button.active::after {
+    width: 100%;
+}
+
+/* Animation pour les cartes et conteneurs */
+.card-animation {
+    transition: all 0.3s ease;
+}
+
+.card-animation:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation pour les boutons */
+.btn-animation {
+    transition: all 0.3s ease;
+    overflow: hidden;
+    position: relative;
+}
+
+.btn-animation::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-animation:hover::after {
+    width: 300%;
+    height: 300%;
+}
+
+/* Animation pour les notifications */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse-animation {
+    animation: pulse 1.5s infinite;
+}
+
+/* Animation pour les messages de chat */
+.message-animation-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.message-animation-enter-active {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s, transform 0.3s;
+}
+
+.message-animation-exit {
+    opacity: 1;
+}
+
+.message-animation-exit-active {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* Animation pour les éléments qui apparaissent */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Animation pour les éléments qui disparaissent */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+.fade-out {
+    animation: fadeOut 0.3s ease-in-out;
+}
+
+/* Animation pour les éléments qui apparaissent avec un délai */
+.staggered-animation > * {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+.staggered-animation > *:nth-child(1) { animation-delay: 0.1s; }
+.staggered-animation > *:nth-child(2) { animation-delay: 0.2s; }
+.staggered-animation > *:nth-child(3) { animation-delay: 0.3s; }
+.staggered-animation > *:nth-child(4) { animation-delay: 0.4s; }
+.staggered-animation > *:nth-child(5) { animation-delay: 0.5s; }
+.staggered-animation > *:nth-child(6) { animation-delay: 0.6s; }
+.staggered-animation > *:nth-child(7) { animation-delay: 0.7s; }
+.staggered-animation > *:nth-child(8) { animation-delay: 0.8s; }
+.staggered-animation > *:nth-child(9) { animation-delay: 0.9s; }
+.staggered-animation > *:nth-child(10) { animation-delay: 1.0s; }

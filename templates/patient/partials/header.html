@@ -1,0 +1,97 @@
+<!-- Topbar (Header fixe) -->
+<div class="topbar">
+    <div class="topbar-logo">
+        <a href="{{ url_for('patient.dashboard') }}">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HealthConnect Logo">
+            <span>HealthConnect</span>
+        </a>
+    </div>
+
+    <div class="topbar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher...">
+    </div>
+
+    <div class="topbar-actions">
+        <!-- Bouton mode sombre/clair -->
+        <div class="theme-toggle" id="theme-toggle">
+            <i class="fas fa-moon"></i>
+            <i class="fas fa-sun"></i>
+        </div>
+
+        <!-- Notifications -->
+        <div class="topbar-notification" id="notification-toggle">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+        </div>
+
+        <!-- Dropdown Notifications (déplacé en dehors pour éviter les problèmes de positionnement) -->
+        <div class="notification-dropdown" id="notification-dropdown">
+            <div class="notification-header">
+                <div class="notification-title">Notifications</div>
+                <div class="notification-actions">Tout marquer comme lu</div>
+            </div>
+
+            <!-- Les notifications seront ajoutées ici dynamiquement par JavaScript -->
+            <div class="notification-list">
+                <div class="notification-empty">
+                    <div class="notification-icon">
+                        <i class="fas fa-bell-slash"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-text">Aucune notification pour le moment</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notification-footer">
+                <a href="{{ url_for('patient.all_notifications') }}">Voir toutes les notifications</a>
+            </div>
+        </div>
+
+        <!-- Profil utilisateur -->
+        <div class="topbar-profile" id="profile-toggle">
+            <div class="profile-avatar">
+                <img src="{{ url_for('static', filename=current_user.patient.profile_picture.replace('\\', '/')) if current_user.patient.profile_picture else url_for('static', filename='images/default-avatar.png') }}" alt="Avatar">
+            </div>
+            <span class="profile-name">{{ current_user.first_name }} <i class="fas fa-chevron-down"></i></span>
+
+            <!-- Dropdown Profil -->
+            <div class="profile-dropdown" id="profile-dropdown">
+                <div class="profile-dropdown-header">
+                    <div class="profile-dropdown-avatar">
+                        <img src="{{ url_for('static', filename=current_user.patient.profile_picture.replace('\\', '/')) if current_user.patient.profile_picture else url_for('static', filename='images/default-avatar.png') }}" alt="Avatar">
+                    </div>
+                    <div class="profile-dropdown-info">
+                        <div class="profile-dropdown-name">{{ current_user.first_name }} {{ current_user.last_name }}</div>
+                        <div class="profile-dropdown-email">{{ current_user.email }}</div>
+                    </div>
+                </div>
+
+                <div class="profile-dropdown-menu">
+                    <a href="{{ url_for('patient.profile') }}" class="profile-dropdown-item">
+                        <i class="fas fa-user"></i> Mon profil
+                    </a>
+                    <a href="#" class="profile-dropdown-item">
+                        <i class="fas fa-cog"></i> Paramètres
+                    </a>
+                    <a href="#" class="profile-dropdown-item">
+                        <i class="fas fa-shield-alt"></i> Confidentialité
+                    </a>
+                    <div class="profile-dropdown-divider"></div>
+                    <a href="#" class="profile-dropdown-item">
+                        <i class="fas fa-question-circle"></i> Aide
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="profile-dropdown-item profile-dropdown-logout">
+                        <i class="fas fa-sign-out-alt"></i> Déconnexion
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bouton menu mobile -->
+    <button id="mobile-menu-toggle" class="d-md-none">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>

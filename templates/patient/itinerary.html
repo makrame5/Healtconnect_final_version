@@ -1,0 +1,219 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Itinéraire des Hôpitaux & Pharmacies{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/itinerary.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+{% include 'patient/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    {% include 'patient/partials/sidebar.html' %}
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="itinerary-page">
+            <div class="itinerary-header">
+                <h1>Itinéraire des Hôpitaux & Pharmacies</h1>
+                <p>Trouvez les établissements de santé à proximité</p>
+            </div>
+
+            <div class="itinerary-layout">
+                <!-- Panneau de filtres -->
+                <div class="filters-panel">
+                    <div class="filter-section">
+                        <h3>Type d'établissement</h3>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" name="type" value="hospital" checked>
+                                <div class="option-circle hospital">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <span>Hôpitaux</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="type" value="pharmacy" checked>
+                                <div class="option-circle pharmacy">
+                                    <i class="fas fa-prescription-bottle-medical"></i>
+                                </div>
+                                <span>Pharmacies</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="type" value="clinic">
+                                <div class="option-circle clinic">
+                                    <i class="fas fa-stethoscope"></i>
+                                </div>
+                                <span>Cliniques</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h3>Services</h3>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" name="service" value="emergency">
+                                <div class="option-circle emergency">
+                                    <i class="fas fa-truck-medical"></i>
+                                </div>
+                                <span>Urgences</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="service" value="24h">
+                                <div class="option-circle h24">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <span>24h/24</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" name="service" value="guard">
+                                <div class="option-circle guard">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <span>De garde</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h3>Distance</h3>
+                        <div class="distance-slider">
+                            <input type="range" min="1" max="20" value="5" class="slider" id="distance-slider">
+                            <div class="slider-track">
+                                <div class="slider-thumb"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contenu principal -->
+                <div class="itinerary-content">
+                    <!-- Carte -->
+                    <div id="map" class="map-container"></div>
+
+                    <div class="establishments-section">
+                        <h2>Établissements à proximité</h2>
+
+                        <div class="establishment-list">
+                            <div class="establishment-card">
+                                <div class="establishment-icon hospital">
+                                    <i class="fas fa-hospital"></i>
+                                </div>
+                                <div class="establishment-info">
+                                    <h3>Hôpital Universitaire</h3>
+                                    <p>123 Avenue de la Santé, 75001 Paris</p>
+                                </div>
+                                <button class="btn-itinerary" data-id="hospital1">
+                                    <i class="fas fa-directions"></i> Itinéraire
+                                </button>
+                            </div>
+
+                            <div class="establishment-card">
+                                <div class="establishment-icon pharmacy">
+                                    <i class="fas fa-prescription-bottle-medical"></i>
+                                </div>
+                                <div class="establishment-info">
+                                    <h3>Pharmacie Centrale</h3>
+                                    <p>45 Rue des Médicaments, 75001 Paris</p>
+                                </div>
+                                <button class="btn-itinerary" data-id="pharmacy1">
+                                    <i class="fas fa-directions"></i> Itinéraire
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal pour l'itinéraire -->
+        <div id="itinerary-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Itinéraire vers <span id="destination-name">l'établissement</span></h2>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="itinerary-map" class="itinerary-map"></div>
+                    <div class="itinerary-details">
+                        <div class="itinerary-info">
+                            <div class="info-item">
+                                <i class="fas fa-route"></i>
+                                <span id="itinerary-distance">2.3 km</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <span id="itinerary-time">8 min en voiture</span>
+                            </div>
+                        </div>
+                        <div class="transport-modes">
+                            <button class="transport-mode active" data-mode="driving" onclick="setTransportMode('driving')">
+                                <i class="fas fa-car"></i> Voiture
+                            </button>
+                            <button class="transport-mode" data-mode="walking" onclick="setTransportMode('walking')">
+                                <i class="fas fa-walking"></i> À pied
+                            </button>
+                            <button class="transport-mode" data-mode="bicycling" onclick="setTransportMode('bicycling')">
+                                <i class="fas fa-bicycle"></i> Vélo
+                            </button>
+                            <button class="transport-mode" data-mode="transit" onclick="setTransportMode('transit')">
+                                <i class="fas fa-bus"></i> Transport
+                            </button>
+                        </div>
+                        <div class="itinerary-steps">
+                            <div class="step">
+                                <div class="step-number">1</div>
+                                <div class="step-instruction">Prenez la rue des Médicaments en direction du nord</div>
+                                <div class="step-distance">300 m</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">2</div>
+                                <div class="step-instruction">Tournez à droite sur l'Avenue de la Santé</div>
+                                <div class="step-distance">1.2 km</div>
+                            </div>
+                            <div class="step">
+                                <div class="step-number">3</div>
+                                <div class="step-instruction">Votre destination se trouve sur la droite</div>
+                                <div class="step-distance">50 m</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Google Maps JavaScript API -->
+<script>
+    // Fonction d'initialisation de la carte sans API Google Maps
+    function initMap() {
+        console.log("Initialisation de la carte (simulée)");
+
+        // Créer un élément de carte simulé
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            mapElement.innerHTML = `
+                <div style="height: 100%; display: flex; align-items: center; justify-content: center; flex-direction: column; background-color: #e9ecef;">
+                    <i class="fas fa-map-marked-alt" style="font-size: 3rem; color: #2471A3; margin-bottom: 15px;"></i>
+                    <p style="text-align: center; padding: 0 20px;">Carte non disponible.<br>Clé API Google Maps requise.</p>
+                </div>
+            `;
+        }
+
+        // Initialiser les événements
+        initEvents();
+
+        // Charger les établissements (simulé)
+        loadFacilities();
+    }
+</script>
+<script src="{{ url_for('static', filename='js/patient/itinerary.js') }}"></script>
+{% endblock %}

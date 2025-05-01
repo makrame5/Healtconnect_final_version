@@ -1,0 +1,155 @@
+/* Styles simplifiés pour les notifications */
+
+/* Conteneur de notification */
+.notification-container {
+    position: relative;
+    margin-right: 20px;
+}
+
+/* Bouton de notification */
+.notification-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.05);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover {
+    background-color: rgba(36, 113, 163, 0.1);
+}
+
+.notification-btn.active {
+    background-color: rgba(36, 113, 163, 0.2);
+    border: 1px solid var(--primary-color);
+}
+
+.notification-btn i {
+    font-size: 1.3rem;
+    color: var(--text-color);
+}
+
+/* Badge de notification */
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 18px;
+    height: 18px;
+    background-color: #e74c3c;
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+/* Menu de notification */
+.notification-menu {
+    position: absolute;
+    top: 50px;
+    right: -10px;
+    width: 320px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+}
+
+.notification-menu.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* En-tête de notification */
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.notification-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+#mark-all-read-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+#mark-all-read-btn:hover {
+    text-decoration: underline;
+}
+
+/* Liste de notifications */
+.notification-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Notification vide */
+.notification-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 15px;
+    color: var(--text-light);
+}
+
+.notification-empty i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    color: var(--text-light);
+}
+
+.notification-empty p {
+    margin: 0;
+    text-align: center;
+}
+
+/* Pied de page de notification */
+.notification-footer {
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.notification-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.notification-footer a:hover {
+    text-decoration: underline;
+}

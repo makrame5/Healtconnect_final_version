@@ -1,0 +1,210 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Test Notifications{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/notifications_simple.css') }}">
+<style>
+    .test-container {
+        padding: 30px;
+        max-width: 800px;
+        margin: 100px auto 0;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .test-title {
+        margin-bottom: 20px;
+        color: var(--primary-color);
+    }
+
+    .test-description {
+        margin-bottom: 30px;
+        color: var(--text-color);
+    }
+
+    .test-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+
+    .test-button {
+        padding: 10px 15px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .test-button:hover {
+        background-color: #1a5276;
+    }
+
+    .test-log {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: monospace;
+        height: 200px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+    }
+
+    .log-entry {
+        margin-bottom: 5px;
+        padding: 5px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .log-entry.success {
+        color: #2ecc71;
+    }
+
+    .log-entry.error {
+        color: #e74c3c;
+    }
+
+    .log-entry.info {
+        color: #3498db;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Inclure le header standard -->
+{% include 'patient/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    {% include 'patient/partials/sidebar.html' %}
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="test-container">
+            <h1 class="test-title">Test des Notifications</h1>
+            <p class="test-description">Cette page permet de tester le fonctionnement des notifications dans le header.</p>
+
+            <div class="test-buttons">
+                <button id="test-toggle-btn" class="test-button">Tester l'ouverture/fermeture</button>
+                <button id="test-add-notification-btn" class="test-button">Ajouter une notification</button>
+                <button id="test-clear-log-btn" class="test-button">Effacer le log</button>
+            </div>
+
+            <div id="test-log" class="test-log">
+                <div class="log-entry info">Prêt à tester les notifications...</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/patient/notifications_simple.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Éléments DOM
+        const testToggleBtn = document.getElementById('test-toggle-btn');
+        const testAddNotificationBtn = document.getElementById('test-add-notification-btn');
+        const testClearLogBtn = document.getElementById('test-clear-log-btn');
+        const testLog = document.getElementById('test-log');
+        const notificationBtn = document.getElementById('notification-btn');
+        const notificationMenu = document.getElementById('notification-menu');
+        const notificationList = document.querySelector('.notification-list');
+
+        // Fonction pour ajouter une entrée au log
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            testLog.appendChild(entry);
+            testLog.scrollTop = testLog.scrollHeight;
+        }
+
+        // Test de l'ouverture/fermeture du menu
+        testToggleBtn.addEventListener('click', function() {
+            if (!notificationBtn || !notificationMenu) {
+                addLogEntry('Éléments de notification non trouvés', 'error');
+                return;
+            }
+
+            const isVisible = notificationMenu.classList.contains('show');
+
+            if (isVisible) {
+                notificationMenu.classList.remove('show');
+                notificationBtn.classList.remove('active');
+                addLogEntry('Menu fermé manuellement', 'success');
+            } else {
+                notificationMenu.classList.add('show');
+                notificationBtn.classList.add('active');
+                addLogEntry('Menu ouvert manuellement', 'success');
+            }
+        });
+
+        // Test d'ajout d'une notification
+        testAddNotificationBtn.addEventListener('click', function() {
+            if (!notificationList) {
+                addLogEntry('Liste de notifications non trouvée', 'error');
+                return;
+            }
+
+            // Supprimer le message "Aucune notification"
+            const emptyNotification = notificationList.querySelector('.notification-empty');
+            if (emptyNotification) {
+                emptyNotification.remove();
+            }
+
+            // Créer une nouvelle notification
+            const notification = document.createElement('div');
+            notification.className = 'notification-item notification-unread';
+            notification.innerHTML = `
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="notification-content">
+                    <div class="notification-text">Notification de test (${new Date().toLocaleTimeString()})</div>
+                    <div class="notification-time">À l'instant</div>
+                </div>
+            `;
+
+            // Ajouter la notification à la liste
+            notificationList.prepend(notification);
+
+            // Mettre à jour le badge
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                const count = parseInt(badge.textContent) || 0;
+                badge.textContent = count + 1;
+                badge.style.display = 'flex';
+            }
+
+            addLogEntry('Notification ajoutée', 'success');
+        });
+
+        // Effacer le log
+        testClearLogBtn.addEventListener('click', function() {
+            testLog.innerHTML = '';
+            addLogEntry('Log effacé', 'info');
+        });
+
+        // Ajouter des informations initiales
+        addLogEntry('Page de test chargée', 'info');
+
+        if (notificationBtn) {
+            addLogEntry('Bouton de notification trouvé', 'success');
+        } else {
+            addLogEntry('Bouton de notification non trouvé', 'error');
+        }
+
+        if (notificationMenu) {
+            addLogEntry('Menu de notification trouvé', 'success');
+        } else {
+            addLogEntry('Menu de notification non trouvé', 'error');
+        }
+    });
+</script>
+{% endblock %}

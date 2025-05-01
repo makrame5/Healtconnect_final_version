@@ -1,0 +1,860 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Cabinet Virtuel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/virtual_office.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/virtual_office_new.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/video_integration.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/animations.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notification.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/vital_signs_bar.css') }}">
+<style>
+    /* Styles supplémentaires pour les animations et transitions */
+    .dashboard-content {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .tab-item {
+        transition: all 0.3s ease;
+    }
+
+    .tab-item:hover {
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .tab-pane {
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .patient-consultation-area {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .patient-header {
+        animation: slideInDown 0.5s ease-in-out;
+    }
+
+    @keyframes slideInDown {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .video-container {
+        animation: fadeIn 0.7s ease-in-out;
+    }
+
+    .chat-container {
+        animation: fadeIn 0.9s ease-in-out;
+    }
+
+    .consultation-tabs {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .consultation-content {
+        animation: fadeIn 0.7s ease-in-out;
+    }
+
+    /* Amélioration des transitions entre les onglets */
+    .tab-content {
+        position: relative;
+    }
+
+    .tab-pane {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .tab-pane:not(.active) {
+        opacity: 0;
+        transform: translateY(10px);
+        position: absolute;
+        width: 100%;
+        pointer-events: none;
+    }
+
+    .tab-pane.active {
+        opacity: 1;
+        transform: translateY(0);
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block body_attributes %}
+{% if current_appointment %}
+data-appointment-id="{{ current_appointment.id }}"
+data-patient-id="{{ current_appointment.patient.id }}"
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% include 'doctor/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">CLINIC</div>
+            <a href="{{ url_for('doctor.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="{{ url_for('doctor.patients') }}" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span class="menu-text">Patients</span>
+            </a>
+            <a href="{{ url_for('doctor.virtual_office') }}" class="menu-item active">
+                <i class="fas fa-laptop-medical"></i>
+                <span class="menu-text">Cabinet Virtuel</span>
+            </a>
+            <a href="{{ url_for('doctor.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Rendez-vous</span>
+            </a>
+            <a href="{{ url_for('doctor.availability') }}" class="menu-item">
+                <i class="fas fa-clock"></i>
+                <span class="menu-text">Disponibilités</span>
+            </a>
+
+            <div class="menu-category">INTERACTION</div>
+            <a href="{{ url_for('doctor.smart_agenda') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Agenda Intelligent</span>
+            </a>
+            <a href="{{ url_for('doctor.waiting_room') }}" class="menu-item">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="menu-text">File d'Attente</span>
+            </a>
+
+            <div class="menu-category">RÉSEAU COLLABORATIF</div>
+            <a href="{{ url_for('doctor.medical_network') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Réseau Médical</span>
+            </a>
+            <a href="{{ url_for('doctor.hospital_references') }}" class="menu-item">
+                <i class="fas fa-hospital"></i>
+                <span class="menu-text">Références Hospitalières</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('doctor.settings') }}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="virtual-office-container">
+            <!-- Onglets de navigation -->
+            <div class="consultation-tabs">
+                <div class="tab-item active" data-tab="all-calls">All calls</div>
+                <div class="tab-item" data-tab="video-call">Video call</div>
+                <div class="tab-item" data-tab="lab-results">Lab results</div>
+            </div>
+
+            <!-- Conteneur pour les onglets -->
+            <div class="tab-content">
+                <!-- Onglet "All calls" -->
+                <div class="tab-pane active" id="all-calls">
+                    <div class="all-calls-container">
+                        <div class="section-header">
+                            <h2>Consultations du jour - {{ today_date }}</h2>
+                            <div class="section-actions">
+                                <button class="refresh-btn">
+                                    <i class="fas fa-sync-alt"></i> Rafraîchir
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="appointments-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Heure</th>
+                                        <th>Patient</th>
+                                        <th>Âge</th>
+                                        <th>Genre</th>
+                                        <th>Motif</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if today_appointments %}
+                                        {% for appointment in today_appointments %}
+                                        <tr>
+                                            <td>{{ appointment.date_time.strftime('%H:%M') }}</td>
+                                            <td>{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</td>
+                                            <td>{{ appointment.patient.age if appointment.patient.age else 'N/A' }}</td>
+                                            <td>{{ appointment.patient.gender if appointment.patient.gender else 'N/A' }}</td>
+                                            <td>{{ appointment.reason if appointment.reason else 'Consultation' }}</td>
+                                            <td>
+                                                <span class="status-badge status-{{ appointment.status }}">
+                                                    {% if appointment.status == 'pending' %}
+                                                        En attente
+                                                    {% elif appointment.status == 'accepted' %}
+                                                        Confirmé
+                                                    {% elif appointment.status == 'completed' %}
+                                                        Terminé
+                                                    {% elif appointment.status == 'cancelled' %}
+                                                        Annulé
+                                                    {% endif %}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {% if appointment.status == 'accepted' %}
+                                                    {% set now = current_time %}
+                                                    {% set time_diff = (appointment.date_time - now).total_seconds() %}
+                                                    {% if time_diff <= 600 and time_diff >= -3600 %}
+                                                        <a href="#" class="btn-action btn-primary start-consultation" data-appointment-id="{{ appointment.id }}">
+                                                            <i class="fas fa-video"></i> Consulter
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="#" class="btn-action btn-secondary disabled">
+                                                            <i class="fas fa-video"></i> Consulter
+                                                        </a>
+                                                    {% endif %}
+                                                {% elif appointment.status == 'pending' %}
+                                                    <a href="{{ url_for('doctor.accept_appointment', appointment_id=appointment.id) }}" class="btn-action btn-success">
+                                                        <i class="fas fa-check"></i> Accepter
+                                                    </a>
+                                                    <a href="{{ url_for('doctor.reject_appointment', appointment_id=appointment.id) }}" class="btn-action btn-danger">
+                                                        <i class="fas fa-times"></i> Refuser
+                                                    </a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="7" class="empty-state">
+                                                <i class="fas fa-calendar-times"></i>
+                                                <p>Aucun rendez-vous pour aujourd'hui</p>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onglet "Video call" -->
+                <div class="tab-pane" id="video-call">
+                    <!-- Informations du patient et zone de consultation -->
+                    <div class="patient-consultation-area">
+                        <!-- En-tête avec informations patient -->
+                        <div class="patient-header">
+                            <div class="patient-main-info">
+                                <div class="patient-label">Patient</div>
+                                <h2 class="patient-name" id="current-patient-name"
+                                    {% if current_appointment %}
+                                        data-patient-id="{{ current_appointment.patient.id }}"
+                                        data-room-id="{{ current_appointment.video_room_id }}"
+                                        data-appointment-id="{{ current_appointment.id }}"
+                                    {% endif %}>
+                                    {% if current_appointment %}
+                                        {{ current_appointment.patient.user.first_name }} {{ current_appointment.patient.user.last_name }}
+                                        {% if current_appointment.video_room_id %}
+                                        <span class="room-id-badge" title="ID de salle vidéo">
+                                            <i class="fas fa-video"></i> {{ current_appointment.video_room_id }}
+                                        </span>
+                                        {% endif %}
+                                    {% else %}
+                                        Sélectionnez un patient
+                                    {% endif %}
+                                </h2>
+                                <div class="appointment-info">
+                                    {% if current_appointment %}
+                                    <span class="appointment-date">
+                                        <i class="far fa-calendar"></i> {{ current_appointment.date_time.strftime('%d/%m/%Y') }}
+                                    </span>
+                                    <span class="appointment-time">
+                                        <i class="far fa-clock"></i> {{ current_appointment.date_time.strftime('%H:%M') }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="patient-details-grid" id="patient-details">
+                                {% if current_appointment %}
+                                <div class="patient-detail-item">
+                                    <div class="detail-label">Genre</div>
+                                    <div class="detail-value">
+                                        {% if current_appointment.patient.gender %}
+                                            {{ current_appointment.patient.gender }}
+                                        {% else %}
+                                            Non spécifié
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="patient-detail-item">
+                                    <div class="detail-label">Groupe sanguin</div>
+                                    <div class="detail-value">
+                                        {% if current_appointment.patient.blood_type %}
+                                            {{ current_appointment.patient.blood_type }}
+                                        {% else %}
+                                            Non spécifié
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="patient-detail-item">
+                                    <div class="detail-label">Allergies</div>
+                                    <div class="detail-value">
+                                        {% if current_appointment.patient.allergies %}
+                                            {{ current_appointment.patient.allergies }}
+                                        {% else %}
+                                            Aucune connue
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="patient-detail-item">
+                                    <div class="detail-label">Maladies chroniques</div>
+                                    <div class="detail-value">
+                                        {% if current_appointment.patient.chronic_diseases %}
+                                            {{ current_appointment.patient.chronic_diseases }}
+                                        {% else %}
+                                            Aucune connue
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% else %}
+                                <div class="empty-state">
+                                    <p>Sélectionnez un patient dans l'onglet "All calls" pour commencer une consultation</p>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="consultation-actions">
+                                {% if current_appointment %}
+                                <a href="{{ url_for('doctor.prescription', appointment_id=current_appointment.id) }}" class="action-btn">
+                                    <i class="fas fa-prescription"></i> Prescription
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Zone principale de consultation -->
+                        <div class="consultation-main-area">
+                            <!-- Nouvelle disposition avec panneau gauche (vidéo) et panneau droit (chat + notes/prescription) -->
+                            <div class="consultation-content-wrapper">
+                                <!-- Panneau gauche: Vidéo -->
+                                <div class="consultation-left-panel">
+                                    <div class="video-container" id="video-container">
+                                        {% if current_appointment %}
+                                        <!-- Barre de signaux vitaux -->
+                                        <div class="vital-signs-bar" id="vital-signs-bar">
+                                            <div class="bar-toggle" id="vital-signs-bar-toggle">
+                                                <i class="fas fa-chevron-down"></i>
+                                            </div>
+
+                                            <!-- Section fréquence cardiaque -->
+                                            <div class="vital-sign-section normal" id="heartrate-section">
+                                                <div class="vital-sign-icon">
+                                                    <i class="fas fa-heart"></i>
+                                                </div>
+                                                <div class="vital-sign-data">
+                                                    <div class="vital-sign-value" id="heartrate-value">--</div>
+                                                    <div class="vital-sign-unit">bpm</div>
+                                                </div>
+                                                <div class="vital-sign-chart">
+                                                    <canvas id="heartrate-chart"></canvas>
+                                                </div>
+                                                <div class="vital-sign-status" id="heartrate-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Section tension artérielle -->
+                                            <div class="vital-sign-section normal" id="blood_pressure-section">
+                                                <div class="vital-sign-icon">
+                                                    <i class="fas fa-heartbeat"></i>
+                                                </div>
+                                                <div class="vital-sign-data">
+                                                    <div class="vital-sign-value" id="blood_pressure-value">--/--</div>
+                                                    <div class="vital-sign-unit">mmHg</div>
+                                                </div>
+                                                <div class="vital-sign-chart">
+                                                    <canvas id="blood-pressure-chart"></canvas>
+                                                </div>
+                                                <div class="vital-sign-status" id="blood_pressure-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Section température -->
+                                            <div class="vital-sign-section normal" id="temperature-section">
+                                                <div class="vital-sign-icon">
+                                                    <i class="fas fa-thermometer-half"></i>
+                                                </div>
+                                                <div class="vital-sign-data">
+                                                    <div class="vital-sign-value" id="temperature-value">--</div>
+                                                    <div class="vital-sign-unit">°C</div>
+                                                </div>
+                                                <div class="vital-sign-chart">
+                                                    <canvas id="temperature-chart"></canvas>
+                                                </div>
+                                                <div class="vital-sign-status" id="temperature-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Section saturation en oxygène -->
+                                            <div class="vital-sign-section normal" id="oxygen-section">
+                                                <div class="vital-sign-icon">
+                                                    <i class="fas fa-lungs"></i>
+                                                </div>
+                                                <div class="vital-sign-data">
+                                                    <div class="vital-sign-value" id="oxygen-value">--</div>
+                                                    <div class="vital-sign-unit">%</div>
+                                                </div>
+                                                <div class="vital-sign-chart">
+                                                    <canvas id="oxygen-chart"></canvas>
+                                                </div>
+                                                <div class="vital-sign-status" id="oxygen-status">
+                                                    <i class="fas fa-check-circle"></i>
+                                                </div>
+                                            </div>
+
+                                            <!-- Bouton d'historique -->
+                                            <div class="history-button" id="vital-signs-history-button">
+                                                <i class="fas fa-history"></i>
+                                            </div>
+                                        </div>
+
+                                        <!-- Popup d'historique des signaux vitaux -->
+                                        <div class="vital-signs-overlay" id="vital-signs-overlay"></div>
+                                        <div class="vital-signs-history-popup" id="vital-signs-history-popup">
+                                            <div class="history-popup-header">
+                                                <div class="history-popup-title">Historique des signaux vitaux</div>
+                                                <div class="history-popup-close" id="vital-signs-history-close">
+                                                    <i class="fas fa-times"></i>
+                                                </div>
+                                            </div>
+                                            <div class="history-popup-content">
+                                                <div class="history-tabs">
+                                                    <div class="history-tab active" data-type="heartrate">Fréquence cardiaque</div>
+                                                    <div class="history-tab" data-type="blood_pressure">Tension artérielle</div>
+                                                    <div class="history-tab" data-type="temperature">Température</div>
+                                                    <div class="history-tab" data-type="oxygen">Saturation en oxygène</div>
+                                                </div>
+                                                <div class="history-chart-container">
+                                                    <canvas id="history-heartrate-chart"></canvas>
+                                                    <canvas id="history-blood-pressure-chart" style="display: none;"></canvas>
+                                                    <canvas id="history-temperature-chart" style="display: none;"></canvas>
+                                                    <canvas id="history-oxygen-chart" style="display: none;"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="video-grid" id="video-grid">
+                                            <div class="video-placeholder" id="video-placeholder">
+                                                <i class="fas fa-video"></i>
+                                                <p>Prêt à démarrer la consultation vidéo avec {{ current_appointment.patient.user.first_name }} {{ current_appointment.patient.user.last_name }}</p>
+                                            </div>
+
+                                            <!-- Vidéos locales et distantes (initialement cachées) -->
+                                            <div class="video-participant local-participant" id="local-participant" style="display: none;">
+                                                <video id="local-video" autoplay muted playsinline></video>
+                                                <div class="participant-info">
+                                                    <span class="participant-name">Vous (Dr. {{ current_user.first_name }} {{ current_user.last_name }})</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="video-participant remote-participant" id="remote-participant" style="display: none;">
+                                                <video id="remote-video" autoplay playsinline></video>
+                                                <div class="participant-info">
+                                                    <span class="participant-name">{{ current_appointment.patient.user.first_name }} {{ current_appointment.patient.user.last_name }}</span>
+                                                </div>
+                                                <div class="connection-status" id="connection-status">
+                                                    <i class="fas fa-circle-notch fa-spin"></i> En attente du patient...
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Contrôles vidéo supplémentaires (initialement cachés) -->
+                                        <div class="video-call-controls" id="video-call-controls" style="display: none;">
+                                            <button id="toggle-video" class="video-control-btn" title="Activer/désactiver la caméra">
+                                                <i class="fas fa-video"></i>
+                                            </button>
+                                            <button id="toggle-audio" class="video-control-btn" title="Activer/désactiver le microphone">
+                                                <i class="fas fa-microphone"></i>
+                                            </button>
+                                            <button id="toggle-fullscreen" class="video-control-btn" title="Plein écran">
+                                                <i class="fas fa-expand"></i>
+                                            </button>
+                                            <button id="end-call" class="video-control-btn end-call" title="Terminer la consultation">
+                                                <i class="fas fa-phone-slash"></i>
+                                            </button>
+                                        </div>
+
+                                        <!-- Contrôles vidéo -->
+                                        <div class="video-controls">
+                                            {% if current_appointment.video_room_id %}
+                                            <button id="join-consultation-btn" class="join-consultation-btn" data-room-id="{{ current_appointment.video_room_id }}">
+                                                <i class="fas fa-video"></i> Rejoindre la consultation
+                                            </button>
+                                            {% else %}
+                                            <div class="alert alert-warning">
+                                                Le lien de consultation vidéo n'a pas encore été généré.
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        {% else %}
+                                        <div class="empty-state">
+                                            <i class="fas fa-video-slash"></i>
+                                            <p>Aucune consultation en cours</p>
+                                            <p>Sélectionnez un patient dans l'onglet "All calls" pour commencer une consultation</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Panneau droit: Chat + Notes/Prescription -->
+                                <div class="consultation-right-panel">
+                                    <!-- Haut: Chat en temps réel (30%) -->
+                                    <div class="right-panel-top">
+                                        {% if current_appointment and current_appointment.video_room_id %}
+                                        <div class="chat-container">
+                                            <div class="chat-header">
+                                                <div class="chat-title">
+                                                    <i class="fas fa-comments"></i>
+                                                    Chat en temps réel
+                                                </div>
+                                                <div class="chat-notification" id="chat-notification" style="display: none;">
+                                                    <span class="notification-badge pulse-animation">Nouveau message</span>
+                                                </div>
+                                                <div class="chat-actions">
+                                                    <button class="chat-action-btn" id="minimize-chat" title="Réduire">
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                    <button class="chat-action-btn" id="maximize-chat" title="Agrandir">
+                                                        <i class="fas fa-expand"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div class="chat-messages" id="chat-messages">
+                                                <!-- Les messages seront ajoutés dynamiquement ici -->
+                                                <div class="chat-info">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    <p>Le chat est disponible pendant la consultation vidéo.</p>
+                                                    <p>Les messages disparaîtront à la fin de la consultation.</p>
+                                                </div>
+
+                                                <!-- Exemple de message système -->
+                                                <div class="system-message">
+                                                    La consultation a commencé à {{ current_appointment.date_time.strftime('%H:%M') }}
+                                                </div>
+
+                                                <!-- Espace pour les messages dynamiques -->
+
+                                                <!-- Indicateur de frappe -->
+                                                <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                                                    <div class="typing-dot"></div>
+                                                    <div class="typing-dot"></div>
+                                                    <div class="typing-dot"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="chat-input-area">
+                                                <div class="chat-input-container">
+                                                    <textarea id="chat-input" class="chat-input" placeholder="Tapez votre message ici..." rows="1"></textarea>
+                                                    <button id="send-message" class="chat-send-btn">
+                                                        <i class="fas fa-paper-plane"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="chat-placeholder">
+                                            <i class="fas fa-comments-slash"></i>
+                                            <p>Le chat sera disponible une fois la consultation démarrée</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Bas: Notes et prescriptions (70%) -->
+                                    <div class="right-panel-bottom">
+                                        {% if current_appointment %}
+                                        <div class="consultation-tabs">
+                                            <div class="tab-button active" data-tab="notes">
+                                                <i class="fas fa-sticky-note"></i> Notes
+                                            </div>
+                                            <div class="tab-button" data-tab="prescription">
+                                                <i class="fas fa-prescription"></i> Prescription
+                                            </div>
+                                        </div>
+
+                                        <div class="consultation-content">
+                                            <!-- Notes de consultation -->
+                                            <div class="tab-pane active fade-in" id="notes-tab">
+                                                <h3><i class="fas fa-sticky-note"></i> Notes de consultation</h3>
+                                                <p class="tab-description">Prenez des notes pendant la consultation pour garder une trace des informations importantes.</p>
+
+                                                <div class="notes-templates">
+                                                    <div class="template-title">Modèles de notes :</div>
+                                                    <div class="template-buttons">
+                                                        <button type="button" class="template-btn" data-template="general">Consultation générale</button>
+                                                        <button type="button" class="template-btn" data-template="followup">Suivi</button>
+                                                        <button type="button" class="template-btn" data-template="chronic">Maladie chronique</button>
+                                                    </div>
+                                                </div>
+
+                                                <form id="notes-form" class="notes-form">
+                                                    <textarea name="notes" id="consultation-notes" class="form-control" placeholder="Saisissez vos notes de consultation ici...">{{ current_appointment.notes }}</textarea>
+                                                    <div class="form-actions">
+                                                        <span id="notes-status" class="save-status"></span>
+                                                        <button type="button" id="save-notes-btn" class="btn btn-primary btn-animation">
+                                                            <i class="fas fa-save"></i> Enregistrer les notes
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <!-- Prescription -->
+                                            <div class="tab-pane fade-in" id="prescription-tab">
+                                                <h3><i class="fas fa-prescription"></i> Prescription</h3>
+                                                <p class="tab-description">Rédigez une prescription pour le patient qui sera disponible après la consultation.</p>
+
+                                                <div class="prescription-templates">
+                                                    <div class="template-title">Modèles de prescription :</div>
+                                                    <div class="template-buttons">
+                                                        <button type="button" class="template-btn" data-template="general">Ordonnance générale</button>
+                                                        <button type="button" class="template-btn" data-template="antibiotics">Antibiotiques</button>
+                                                        <button type="button" class="template-btn" data-template="painkillers">Antidouleurs</button>
+                                                    </div>
+                                                </div>
+
+                                                <form id="prescription-form" class="prescription-form">
+                                                    <textarea name="content" id="prescription-content" class="form-control" placeholder="Saisissez la prescription ici..."></textarea>
+                                                    <div class="form-actions">
+                                                        <span id="prescription-status" class="save-status"></span>
+                                                        <button type="button" id="save-prescription-btn" class="btn btn-primary btn-animation">
+                                                            <i class="fas fa-save"></i> Enregistrer la prescription
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="notes-prescription-placeholder">
+                                            <i class="fas fa-clipboard-list"></i>
+                                            <p>Les notes et prescriptions seront disponibles une fois la consultation démarrée</p>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Onglet "Lab results" -->
+                <div class="tab-pane" id="lab-results">
+                    <div class="lab-results-container">
+                        <div class="section-header">
+                            <h2>Résultats de laboratoire</h2>
+                        </div>
+
+                        <div class="empty-state">
+                            <i class="fas fa-flask"></i>
+                            <p>Fonctionnalité en cours de développement</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<!-- Script de notifications -->
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+<!-- Script de caméra virtuelle pour les tests -->
+<script src="{{ url_for('static', filename='js/fake-camera.js') }}"></script>
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<!-- WebRTC Adapter -->
+<script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+<!-- Script du cabinet virtuel -->
+<script src="{{ url_for('static', filename='js/doctor/virtual_office.js') }}"></script>
+<!-- Script du chat amélioré -->
+<script src="{{ url_for('static', filename='js/doctor/chat.js') }}"></script>
+<!-- Script des modèles de notes et prescriptions -->
+<script src="{{ url_for('static', filename='js/doctor/templates.js') }}"></script>
+<!-- Script d'intégration vidéo -->
+<script src="{{ url_for('static', filename='js/doctor/video_integration.js') }}"></script>
+<!-- Script de mises à jour en temps réel -->
+<script src="{{ url_for('static', filename='js/doctor/realtime_updates.js') }}"></script>
+<!-- Chart.js pour les graphiques de signaux vitaux -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+<!-- Script de la barre de signaux vitaux -->
+<script src="{{ url_for('static', filename='js/vital_signs_bar.js') }}"></script>
+
+{% if current_appointment %}
+<script>
+    // Passer l'ID du rendez-vous et l'ID de la salle au JavaScript
+    document.body.setAttribute('data-appointment-id', '{{ current_appointment.id }}');
+    document.body.setAttribute('data-room-id', '{{ current_appointment.video_room_id }}');
+    document.body.setAttribute('data-user-id', '{{ current_user.id }}');
+    console.log('ID de rendez-vous:', '{{ current_appointment.id }}');
+    console.log('ID de salle vidéo:', '{{ current_appointment.video_room_id }}');
+    console.log('ID utilisateur:', '{{ current_user.id }}');
+</script>
+{% else %}
+<script>
+    // Passer l'ID de l'utilisateur au JavaScript même sans rendez-vous
+    document.body.setAttribute('data-user-id', '{{ current_user.id }}');
+    console.log('ID utilisateur:', '{{ current_user.id }}');
+</script>
+{% endif %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('DOM chargé, initialisation de la page virtual_office');
+
+        // Récupérer l'ID de rendez-vous depuis l'attribut data-appointment-id du body
+        const appointmentId = document.body.getAttribute('data-appointment-id');
+        console.log('ID de rendez-vous récupéré:', appointmentId);
+
+        // Vérifier si l'URL contient un fragment #video-call
+        if (window.location.hash === '#video-call') {
+            console.log('Fragment #video-call détecté dans l\'URL');
+
+            // Activer l'onglet Video call
+            const mainTabButtons = document.querySelectorAll('.consultation-tabs > .tab-item');
+            const mainTabPanes = document.querySelectorAll('.tab-content > .tab-pane');
+
+            console.log('Activation de l\'onglet Video call - Nombre d\'onglets principaux trouvés:', mainTabButtons.length);
+            console.log('Activation de l\'onglet Video call - Nombre de panneaux principaux trouvés:', mainTabPanes.length);
+
+            mainTabButtons.forEach(button => {
+                if (button.getAttribute('data-tab') === 'video-call') {
+                    button.classList.add('active');
+                    console.log('Onglet Video call activé');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+
+            mainTabPanes.forEach(pane => {
+                if (pane.id === 'video-call') {
+                    pane.classList.add('active');
+                    console.log('Panneau Video call activé');
+                } else {
+                    pane.classList.remove('active');
+                }
+            });
+
+            // Si nous avons un ID de rendez-vous, recharger les informations
+            if (appointmentId) {
+                console.log('Rechargement des informations du rendez-vous:', appointmentId);
+
+                // Attendre que le JavaScript soit complètement chargé
+                setTimeout(() => {
+                    if (typeof reloadAppointmentData === 'function') {
+                        reloadAppointmentData(appointmentId);
+                    } else if (typeof activateVideoCallTab === 'function') {
+                        // Fallback si reloadAppointmentData n'est pas disponible
+                        activateVideoCallTab(appointmentId);
+                    } else {
+                        console.error('Les fonctions reloadAppointmentData et activateVideoCallTab ne sont pas disponibles');
+                    }
+                }, 500);
+            } else {
+                console.warn('Aucun ID de rendez-vous trouvé dans l\'attribut data-appointment-id du body');
+            }
+        } else if (appointmentId) {
+            // Si nous avons un ID de rendez-vous mais pas de fragment #video-call,
+            // mettre à jour l'URL avec le fragment #video-call et activer l'onglet
+            console.log('ID de rendez-vous présent mais pas de fragment #video-call, activation de l\'onglet');
+
+            // Mettre à jour l'URL
+            window.location.hash = 'video-call';
+
+            // Activer l'onglet Video call
+            setTimeout(() => {
+                if (typeof activateVideoCallTab === 'function') {
+                    activateVideoCallTab(appointmentId);
+                } else {
+                    console.error('La fonction activateVideoCallTab n\'est pas disponible');
+                }
+            }, 500);
+        }
+
+        // Ajouter un gestionnaire d'événements pour les changements de hash dans l'URL
+        window.addEventListener('hashchange', function() {
+            console.log('Changement de hash détecté:', window.location.hash);
+
+            if (window.location.hash === '#video-call') {
+                // Récupérer l'ID de rendez-vous depuis l'attribut data-appointment-id du body
+                const appointmentId = document.body.getAttribute('data-appointment-id');
+
+                if (appointmentId) {
+                    console.log('Rechargement des informations du rendez-vous après changement de hash:', appointmentId);
+
+                    // Activer l'onglet Video call
+                    const mainTabButtons = document.querySelectorAll('.consultation-tabs > .tab-item');
+                    const mainTabPanes = document.querySelectorAll('.tab-content > .tab-pane');
+
+                    console.log('Changement de hash - Nombre d\'onglets principaux trouvés:', mainTabButtons.length);
+                    console.log('Changement de hash - Nombre de panneaux principaux trouvés:', mainTabPanes.length);
+
+                    mainTabButtons.forEach(button => {
+                        if (button.getAttribute('data-tab') === 'video-call') {
+                            button.classList.add('active');
+                            console.log('Onglet Video call activé (hashchange)');
+                        } else {
+                            button.classList.remove('active');
+                        }
+                    });
+
+                    mainTabPanes.forEach(pane => {
+                        if (pane.id === 'video-call') {
+                            pane.classList.add('active');
+                            console.log('Panneau Video call activé (hashchange)');
+                        } else {
+                            pane.classList.remove('active');
+                        }
+                    });
+
+                    // Recharger les informations du rendez-vous
+                    setTimeout(() => {
+                        if (typeof reloadAppointmentData === 'function') {
+                            reloadAppointmentData(appointmentId);
+                        }
+                    }, 500);
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,622 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Profil Patient{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/profile.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/header.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/vital_signs.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+{% include 'patient/partials/header.html' %}
+
+<div class="profile-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">Santé Connectée</div>
+            <a href="{{ url_for('patient.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-heartbeat"></i>
+                <span class="menu-text">Guide des Capteurs</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-brain"></i>
+                <span class="menu-text">Analyse IA de Santé</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-robot"></i>
+                <span class="menu-text">Assistant Virtuel</span>
+            </a>
+
+            <div class="menu-category">Suivi Médical</div>
+            <a href="#" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Trouver un Médecin</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span class="menu-text">Espace Médecin-Patient</span>
+            </a>
+            <a href="#" class="menu-item active">
+                <i class="fas fa-user"></i>
+                <span class="menu-text">Profil</span>
+            </a>
+
+            <div class="menu-category">Ressources</div>
+            <a href="#" class="menu-item">
+                <i class="fas fa-map-marked-alt"></i>
+                <span class="menu-text">Itinéraires</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-folder-open"></i>
+                <span class="menu-text">Dossier Médical</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-pills"></i>
+                <span class="menu-text">Gestion des Médicaments</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Profil Patient</h1>
+            <p class="page-subtitle">Gérez vos informations personnelles et suivez votre santé</p>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <!-- Profile Tabs -->
+            <div class="profile-tabs">
+                <div class="profile-tab" data-target="profile-info">
+                    <i class="fas fa-user"></i> Informations personnelles
+                </div>
+                <div class="profile-tab" data-target="vitals">
+                    <i class="fas fa-heartbeat"></i> Signaux vitaux
+                </div>
+                <div class="profile-tab" data-target="consultations">
+                    <i class="fas fa-history"></i> Historique de consultation
+                </div>
+            </div>
+
+            <!-- Section: Informations personnelles -->
+            <div id="profile-info" class="profile-section">
+                <div class="profile-header">
+                    <div class="profile-picture">
+                        <img src="{{ url_for('static', filename=current_user.patient.profile_picture.replace('\\', '/')) if current_user.patient.profile_picture else url_for('static', filename='images/default-avatar.png') }}" alt="Photo de profil" id="profile-avatar">
+                        <label for="avatar-upload" class="avatar-upload-label">
+                            <i class="fas fa-camera"></i>
+                        </label>
+                        <form id="avatar-form" method="POST" enctype="multipart/form-data" action="{{ url_for('patient.profile') }}" style="display: none;">
+                            <input type="file" id="avatar-upload" name="avatar" accept="image/*" onchange="previewAvatar(this)">
+                        </form>
+                    </div>
+
+                    <div class="profile-info">
+                        <h2>{{ current_user.first_name }} {{ current_user.last_name }}</h2>
+                        <p>Patient depuis {{ current_user.created_at.strftime('%d/%m/%Y') }}</p>
+
+                        <div class="profile-actions">
+                            <button class="btn-edit-profile" onclick="editProfile()">
+                                <i class="fas fa-edit"></i> Modifier le profil
+                            </button>
+                            <button class="btn-save-avatar" id="save-avatar-btn" style="display: none;">
+                                <i class="fas fa-save"></i> Enregistrer la photo
+                            </button>
+                            <button class="btn-cancel-avatar" id="cancel-avatar-btn" style="display: none;">
+                                <i class="fas fa-times"></i> Annuler
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Informations personnelles</h3>
+
+                <div class="profile-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Nom complet</div>
+                        <div class="detail-value">{{ current_user.first_name }} {{ current_user.last_name }}</div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Email</div>
+                        <div class="detail-value">{{ current_user.email }}</div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Date de naissance</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.birth_date %}
+                                {{ current_user.patient.birth_date.strftime('%d/%m/%Y') }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Sexe</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.gender %}
+                                {{ current_user.patient.gender }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Téléphone</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.phone %}
+                                {{ current_user.patient.phone }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Adresse</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.address %}
+                                {{ current_user.patient.address }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Informations médicales</h3>
+
+                <div class="profile-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Numéro de sécurité sociale</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.social_security_number %}
+                                {{ current_user.patient.social_security_number }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Groupe sanguin</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.blood_type %}
+                                {{ current_user.patient.blood_type }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Allergies</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.allergies %}
+                                {{ current_user.patient.allergies }}
+                            {% else %}
+                                Aucune allergie connue
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Maladies chroniques</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.chronic_diseases %}
+                                {{ current_user.patient.chronic_diseases }}
+                            {% else %}
+                                Aucune maladie chronique connue
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Médicaments actuels</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.current_medications %}
+                                {{ current_user.patient.current_medications }}
+                            {% else %}
+                                Aucun médicament actuel
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="section-title">Contact d'urgence</h3>
+
+                <div class="profile-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Nom du contact</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.emergency_contact_name %}
+                                {{ current_user.patient.emergency_contact_name }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="detail-group">
+                        <div class="detail-label">Téléphone du contact</div>
+                        <div class="detail-value">
+                            {% if current_user.patient.emergency_contact_phone %}
+                                {{ current_user.patient.emergency_contact_phone }}
+                            {% else %}
+                                Non renseigné
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Signaux vitaux -->
+            <div id="vitals" class="profile-section">
+                <h3 class="section-title">Dernières mesures</h3>
+
+                <div class="vitals-grid">
+                    <div class="vital-card" id="heartrate-card">
+                        <div class="vital-header">
+                            <div class="vital-title">Fréquence cardiaque</div>
+                            <div class="vital-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                        </div>
+                        <div class="vital-value" id="heartrate-value">--</div>
+                        <div class="vital-unit">bpm</div>
+                        <div class="vital-status" id="heartrate-status">
+                            <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                        </div>
+                    </div>
+
+                    <div class="vital-card" id="blood-pressure-card">
+                        <div class="vital-header">
+                            <div class="vital-title">Tension artérielle</div>
+                            <div class="vital-icon">
+                                <i class="fas fa-heartbeat"></i>
+                            </div>
+                        </div>
+                        <div class="vital-value" id="blood-pressure-value">--/--</div>
+                        <div class="vital-unit">mmHg</div>
+                        <div class="vital-status" id="blood-pressure-status">
+                            <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                        </div>
+                    </div>
+
+                    <div class="vital-card" id="temperature-card">
+                        <div class="vital-header">
+                            <div class="vital-title">Température</div>
+                            <div class="vital-icon">
+                                <i class="fas fa-thermometer-half"></i>
+                            </div>
+                        </div>
+                        <div class="vital-value" id="temperature-value">--</div>
+                        <div class="vital-unit">°C</div>
+                        <div class="vital-status" id="temperature-status">
+                            <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                        </div>
+                    </div>
+
+                    <div class="vital-card" id="oxygen-card">
+                        <div class="vital-header">
+                            <div class="vital-title">Saturation en oxygène</div>
+                            <div class="vital-icon">
+                                <i class="fas fa-lungs"></i>
+                            </div>
+                        </div>
+                        <div class="vital-value" id="oxygen-value">--</div>
+                        <div class="vital-unit">%</div>
+                        <div class="vital-status" id="oxygen-status">
+                            <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                        </div>
+                    </div>
+                </div>
+
+                <div class="vital-history-container">
+                    <div class="vital-history-header">
+                        <h3 class="section-title">Historique des mesures</h3>
+                        <div class="vital-history-filters">
+                            <select id="vital-type-filter" class="form-control">
+                                <option value="heartrate">Fréquence cardiaque</option>
+                                <option value="blood_pressure">Tension artérielle</option>
+                                <option value="temperature">Température</option>
+                                <option value="oxygen">Saturation en oxygène</option>
+                            </select>
+                            <select id="vital-period-filter" class="form-control">
+                                <option value="day">Aujourd'hui</option>
+                                <option value="week">Cette semaine</option>
+                                <option value="month" selected>Ce mois</option>
+                                <option value="year">Cette année</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="vital-chart">
+                        <canvas id="vital-history-chart"></canvas>
+                    </div>
+
+                    <div class="vital-history-table-container">
+                        <h3 class="section-title">Détail des mesures</h3>
+                        <table class="vital-history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Heure</th>
+                                    <th>Type</th>
+                                    <th>Valeur</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vital-history-table-body">
+                                <tr>
+                                    <td colspan="5" class="text-center">Chargement des données...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="vital-thresholds-container">
+                    <h3 class="section-title">Seuils personnalisés</h3>
+                    <p class="section-description">Définissez vos seuils personnalisés pour chaque type de mesure. Vous recevrez une alerte lorsque vos mesures dépasseront ces seuils.</p>
+
+                    <div class="vital-thresholds-grid">
+                        <div class="vital-threshold-card">
+                            <div class="vital-threshold-header">
+                                <div class="vital-threshold-title">Fréquence cardiaque</div>
+                                <div class="vital-threshold-icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                            </div>
+                            <div class="vital-threshold-form">
+                                <div class="threshold-input-group">
+                                    <label for="heartrate-min">Minimum:</label>
+                                    <input type="number" id="heartrate-min" class="form-control" value="60" min="40" max="100">
+                                    <span class="unit">bpm</span>
+                                </div>
+                                <div class="threshold-input-group">
+                                    <label for="heartrate-max">Maximum:</label>
+                                    <input type="number" id="heartrate-max" class="form-control" value="100" min="60" max="200">
+                                    <span class="unit">bpm</span>
+                                </div>
+                            </div>
+                            <button class="btn-save-threshold" data-type="heartrate">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                        </div>
+
+                        <div class="vital-threshold-card">
+                            <div class="vital-threshold-header">
+                                <div class="vital-threshold-title">Tension artérielle</div>
+                                <div class="vital-threshold-icon">
+                                    <i class="fas fa-heartbeat"></i>
+                                </div>
+                            </div>
+                            <div class="vital-threshold-form">
+                                <div class="threshold-input-group">
+                                    <label for="systolic-min">Systolique min:</label>
+                                    <input type="number" id="systolic-min" class="form-control" value="90" min="70" max="140">
+                                    <span class="unit">mmHg</span>
+                                </div>
+                                <div class="threshold-input-group">
+                                    <label for="systolic-max">Systolique max:</label>
+                                    <input type="number" id="systolic-max" class="form-control" value="140" min="100" max="200">
+                                    <span class="unit">mmHg</span>
+                                </div>
+                                <div class="threshold-input-group">
+                                    <label for="diastolic-min">Diastolique min:</label>
+                                    <input type="number" id="diastolic-min" class="form-control" value="60" min="40" max="90">
+                                    <span class="unit">mmHg</span>
+                                </div>
+                                <div class="threshold-input-group">
+                                    <label for="diastolic-max">Diastolique max:</label>
+                                    <input type="number" id="diastolic-max" class="form-control" value="90" min="60" max="120">
+                                    <span class="unit">mmHg</span>
+                                </div>
+                            </div>
+                            <button class="btn-save-threshold" data-type="blood_pressure">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                        </div>
+
+                        <div class="vital-threshold-card">
+                            <div class="vital-threshold-header">
+                                <div class="vital-threshold-title">Température</div>
+                                <div class="vital-threshold-icon">
+                                    <i class="fas fa-thermometer-half"></i>
+                                </div>
+                            </div>
+                            <div class="vital-threshold-form">
+                                <div class="threshold-input-group">
+                                    <label for="temperature-min">Minimum:</label>
+                                    <input type="number" id="temperature-min" class="form-control" value="36.1" min="35" max="37" step="0.1">
+                                    <span class="unit">°C</span>
+                                </div>
+                                <div class="threshold-input-group">
+                                    <label for="temperature-max">Maximum:</label>
+                                    <input type="number" id="temperature-max" class="form-control" value="37.8" min="37" max="42" step="0.1">
+                                    <span class="unit">°C</span>
+                                </div>
+                            </div>
+                            <button class="btn-save-threshold" data-type="temperature">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                        </div>
+
+                        <div class="vital-threshold-card">
+                            <div class="vital-threshold-header">
+                                <div class="vital-threshold-title">Saturation en oxygène</div>
+                                <div class="vital-threshold-icon">
+                                    <i class="fas fa-lungs"></i>
+                                </div>
+                            </div>
+                            <div class="vital-threshold-form">
+                                <div class="threshold-input-group">
+                                    <label for="oxygen-min">Minimum:</label>
+                                    <input type="number" id="oxygen-min" class="form-control" value="95" min="80" max="100">
+                                    <span class="unit">%</span>
+                                </div>
+                                <div class="threshold-input-group">
+                                    <label for="oxygen-max">Maximum:</label>
+                                    <input type="number" id="oxygen-max" class="form-control" value="100" min="95" max="100">
+                                    <span class="unit">%</span>
+                                </div>
+                            </div>
+                            <button class="btn-save-threshold" data-type="oxygen">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Historique de consultation -->
+            <div id="consultations" class="profile-section">
+                <h3 class="section-title">Historique des consultations</h3>
+
+                <table class="consultation-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Médecin</th>
+                            <th>Type</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>15/04/2023 - 14:30</td>
+                            <td>
+                                <div class="consultation-doctor">
+                                    <div class="doctor-mini-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor-avatar.png') }}" alt="Dr. Martin">
+                                    </div>
+                                    <span>Dr. Martin (Cardiologue)</span>
+                                </div>
+                            </td>
+                            <td>Vidéo consultation</td>
+                            <td><span class="consultation-status status-completed">Terminée</span></td>
+                            <td>
+                                <div class="consultation-actions">
+                                    <button class="btn-action" onclick="viewConsultationDetails('123')" title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action" onclick="newAppointment('456')" title="Nouveau rendez-vous">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>10/05/2023 - 10:00</td>
+                            <td>
+                                <div class="consultation-doctor">
+                                    <div class="doctor-mini-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor-avatar2.png') }}" alt="Dr. Dupont">
+                                    </div>
+                                    <span>Dr. Dupont (Généraliste)</span>
+                                </div>
+                            </td>
+                            <td>Vidéo consultation</td>
+                            <td><span class="consultation-status status-upcoming">À venir</span></td>
+                            <td>
+                                <div class="consultation-actions">
+                                    <button class="btn-action" onclick="rescheduleAppointment('789')" title="Reprogrammer">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </button>
+                                    <button class="btn-action" onclick="cancelAppointment('789')" title="Annuler">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>01/03/2023 - 09:15</td>
+                            <td>
+                                <div class="consultation-doctor">
+                                    <div class="doctor-mini-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor-avatar3.png') }}" alt="Dr. Petit">
+                                    </div>
+                                    <span>Dr. Petit (Dermatologue)</span>
+                                </div>
+                            </td>
+                            <td>En présentiel</td>
+                            <td><span class="consultation-status status-completed">Terminée</span></td>
+                            <td>
+                                <div class="consultation-actions">
+                                    <button class="btn-action" onclick="viewConsultationDetails('321')" title="Voir les détails">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="btn-action" onclick="newAppointment('654')" title="Nouveau rendez-vous">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>15/02/2023 - 16:45</td>
+                            <td>
+                                <div class="consultation-doctor">
+                                    <div class="doctor-mini-avatar">
+                                        <img src="{{ url_for('static', filename='images/doctor-avatar.png') }}" alt="Dr. Martin">
+                                    </div>
+                                    <span>Dr. Martin (Cardiologue)</span>
+                                </div>
+                            </td>
+                            <td>Vidéo consultation</td>
+                            <td><span class="consultation-status status-cancelled">Annulée</span></td>
+                            <td>
+                                <div class="consultation-actions">
+                                    <button class="btn-action" onclick="newAppointment('456')" title="Nouveau rendez-vous">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="{{ url_for('static', filename='js/patient/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/fix_sidebar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/profile.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/vital_signs.js') }}"></script>
+{% endblock %}

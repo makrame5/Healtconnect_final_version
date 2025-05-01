@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+
+{% block title %}Inscription Patient - HealthConnect{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block content %}
+
+    <!-- Patient Registration Form -->
+    <section class="register-form">
+        <div class="container">
+            <div class="section-header">
+                <h2>Inscription Patient</h2>
+                <p>Créez votre compte patient pour accéder à tous les services de HealthConnect</p>
+            </div>
+
+            <div class="form-container">
+                <div class="form-progress">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Informations personnelles</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Informations médicales</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Finalisation</div>
+                    </div>
+                </div>
+
+                <form id="patientRegistrationForm">
+                    <!-- Step 1: Personal Information -->
+                    <div class="form-step active" data-step="1">
+                        <div class="form-group">
+                            <label for="lastName">Nom <span class="required">*</span></label>
+                            <input type="text" id="lastName" name="lastName" required>
+                            <div class="error-message" id="lastNameError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="firstName">Prénom <span class="required">*</span></label>
+                            <input type="text" id="firstName" name="firstName" required>
+                            <div class="error-message" id="firstNameError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="birthDate">Date de naissance <span class="required">*</span></label>
+                            <input type="date" id="birthDate" name="birthDate" required>
+                            <div class="error-message" id="birthDateError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Sexe <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="male" required>
+                                    <span>Homme</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="gender" value="female">
+                                    <span>Femme</span>
+                                </label>
+                            </div>
+                            <div class="error-message" id="genderError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Adresse Email <span class="required">*</span></label>
+                            <input type="email" id="email" name="email" required>
+                            <div class="error-message" id="emailError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Mot de passe <span class="required">*</span></label>
+                            <div class="password-input">
+                                <input type="password" id="password" name="password" required>
+                                <i class="fas fa-eye-slash toggle-password"></i>
+                            </div>
+                            <div class="password-strength">
+                                <div class="strength-bar"></div>
+                                <div class="strength-label">Force du mot de passe</div>
+                            </div>
+                            <div class="password-requirements">
+                                <p>Le mot de passe doit contenir au moins :</p>
+                                <ul>
+                                    <li id="length">8 caractères</li>
+                                    <li id="uppercase">Une lettre majuscule</li>
+                                    <li id="lowercase">Une lettre minuscule</li>
+                                    <li id="number">Un chiffre</li>
+                                    <li id="special">Un caractère spécial</li>
+                                </ul>
+                            </div>
+                            <div class="error-message" id="passwordError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirmation du mot de passe <span class="required">*</span></label>
+                            <div class="password-input">
+                                <input type="password" id="confirmPassword" name="confirmPassword" required>
+                                <i class="fas fa-eye-slash toggle-password"></i>
+                            </div>
+                            <div class="error-message" id="confirmPasswordError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Téléphone <span class="required">*</span></label>
+                            <input type="tel" id="phone" name="phone" required>
+                            <div class="error-message" id="phoneError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="address">Adresse <span class="required">*</span></label>
+                            <input type="text" id="address" name="address" required>
+                            <div class="error-message" id="addressError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="idNumber">Numéro CIN ou ID patient <span class="required">*</span></label>
+                            <input type="text" id="idNumber" name="idNumber" required>
+                            <div class="error-message" id="idNumberError"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="insurance">Assurance (optionnelle)</label>
+                            <select id="insurance" name="insurance">
+                                <option value="">Sélectionnez votre assurance</option>
+                                <option value="cnss">CNSS</option>
+                                <option value="cnam">FAR</option>
+                                <option value="private">Assurance privée</option>
+                                <option value="other">Autre</option>
+                            </select>
+                        </div>
+
+                        <div class="form-buttons">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Retour</a>
+                            <button type="button" class="btn btn-primary next-step" data-next="2">Suivant</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Medical Information -->
+                    <div class="form-step" data-step="2">
+                        <div class="form-group">
+                            <label for="bloodType">Groupe sanguin</label>
+                            <select id="bloodType" name="bloodType">
+                                <option value="">Sélectionnez votre groupe sanguin</option>
+                                <option value="A+">A+</option>
+                                <option value="A-">A-</option>
+                                <option value="B+">B+</option>
+                                <option value="B-">B-</option>
+                                <option value="AB+">AB+</option>
+                                <option value="AB-">AB-</option>
+                                <option value="O+">O+</option>
+                                <option value="O-">O-</option>
+                                <option value="unknown">Je ne sais pas</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="allergies">Allergies connues</label>
+                            <textarea id="allergies" name="allergies" placeholder="Listez vos allergies connues, séparées par des virgules"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Antécédents médicaux</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="medicalHistory" value="diabetes">
+                                    <span>Diabète</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="medicalHistory" value="hypertension">
+                                    <span>Hypertension</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="medicalHistory" value="asthma">
+                                    <span>Asthme</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="medicalHistory" value="heartDisease">
+                                    <span>Maladie cardiaque</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="medicalHistory" value="cancer">
+                                    <span>Cancer</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="medicalHistory" value="other">
+                                    <span>Autre</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="chronicDiseases">Maladies chroniques</label>
+                            <textarea id="chronicDiseases" name="chronicDiseases" placeholder="Listez vos maladies chroniques, séparées par des virgules"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="currentMedications">Liste des médicaments actuels</label>
+                            <textarea id="currentMedications" name="currentMedications" placeholder="Listez les médicaments que vous prenez actuellement"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emergencyContactName">Personne à contacter en cas d'urgence - Nom</label>
+                            <input type="text" id="emergencyContactName" name="emergencyContactName">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emergencyContactPhone">Personne à contacter en cas d'urgence - Téléphone</label>
+                            <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="socialSecurityNumber">Numéro de sécurité sociale ou CNAM</label>
+                            <input type="text" id="socialSecurityNumber" name="socialSecurityNumber">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Langue(s) parlée(s)</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="languages" value="french">
+                                    <span>Français</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="languages" value="english">
+                                    <span>Anglais</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="languages" value="arabic">
+                                    <span>Arabe</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="languages" value="spanish">
+                                    <span>Espagnol</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="languages" value="other">
+                                    <span>Autre</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-outline prev-step" data-prev="1">Précédent</button>
+                            <button type="button" class="btn btn-primary next-step" data-next="3">Suivant</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Finalization -->
+                    <div class="form-step" data-step="3">
+                        <div class="form-group">
+                            <div class="terms-container">
+                                <h3>Conditions d'utilisation et politique de confidentialité</h3>
+                                <div class="terms-content">
+                                    <p>En créant un compte sur HealthConnect, vous acceptez nos conditions d'utilisation et notre politique de confidentialité.</p>
+                                    <p>Nous nous engageons à protéger vos données personnelles et médicales conformément aux réglementations en vigueur.</p>
+                                    <p>Vos informations médicales ne seront partagées qu'avec les professionnels de santé que vous aurez consultés via notre plateforme.</p>
+                                    <p>Vous pouvez à tout moment demander la suppression de votre compte et de vos données personnelles.</p>
+                                    <p>Pour plus d'informations, veuillez consulter notre <a href="#">politique de confidentialité</a> complète.</p>
+                                </div>
+                            </div>
+                            <div class="consent-checkbox">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="termsConsent" name="termsConsent" required>
+                                    <span>J'accepte les conditions d'utilisation et la politique de confidentialité <span class="required">*</span></span>
+                                </label>
+                                <div class="error-message" id="termsConsentError"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="consent-checkbox">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="dataConsent" name="dataConsent" required>
+                                    <span>J'autorise HealthConnect à traiter mes données médicales pour améliorer mon suivi médical <span class="required">*</span></span>
+                                </label>
+                                <div class="error-message" id="dataConsentError"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="consent-checkbox">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="marketingConsent" name="marketingConsent">
+                                    <span>J'accepte de recevoir des informations et des conseils de santé personnalisés (optionnel)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-buttons">
+                            <button type="button" class="btn btn-outline prev-step" data-prev="2">Précédent</button>
+                            <button type="submit" class="btn btn-primary">Créer mon compte</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="login-redirect">
+                <p>Vous avez déjà un compte ? <a href="{{ url_for('auth.login') }}">Connectez-vous ici</a></p>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/register.js') }}"></script>
+{% endblock %}

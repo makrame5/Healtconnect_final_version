@@ -1,0 +1,229 @@
+/* Styles spécifiques pour la page Trouver un médecin */
+
+/* Formulaires */
+.form-select {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--white);
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+}
+
+/* Utilitaires */
+.me-2 {
+    margin-right: 10px !important;
+}
+
+/* Styles spécifiques pour la page find_doctor */
+.doctor-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.doctor-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.doctor-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.doctor-info {
+    flex: 1;
+}
+
+.doctor-info p {
+    margin-bottom: 5px;
+}
+
+.tips-list {
+    list-style: none;
+    padding: 0;
+}
+
+.tips-list li {
+    margin-bottom: 10px;
+    display: flex;
+    align-items: flex-start;
+}
+
+.tips-list li i {
+    color: var(--secondary-color);
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
+/* Styles pour la page doctor_availability */
+.availability-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.availability-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: rgba(36, 113, 163, 0.05);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.availability-item:hover {
+    background-color: rgba(36, 113, 163, 0.1);
+}
+
+.availability-time {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.availability-time i {
+    color: var(--primary-color);
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.9rem;
+}
+
+.btn-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.btn-link:hover {
+    text-decoration: underline;
+}
+
+.alert-info {
+    padding: 15px;
+    background-color: rgba(52, 152, 219, 0.1);
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.alert-info i {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+/* Styles pour la page book_appointment */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(36, 113, 163, 0.1);
+    outline: none;
+}
+
+.form-text {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.form-check-input {
+    margin-right: 10px;
+    margin-top: 3px;
+}
+
+.form-check-label {
+    font-size: 0.95rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.text-muted {
+    color: var(--text-light);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .col-md-3, .col-md-9, .col-md-6, .col-md-4, .col-md-8 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .container.mt-5 {
+        margin-top: 100px !important;
+    }
+
+    .row.g-0 {
+        flex-direction: column;
+    }
+
+    .row.g-0 > .col-md-4 {
+        max-width: 100%;
+    }
+
+    .row.g-0 > .col-md-4 img {
+        width: 100%;
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+
+    .rounded-start {
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+    }
+
+    .doctor-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .doctor-avatar {
+        margin: 0 auto 15px;
+    }
+}

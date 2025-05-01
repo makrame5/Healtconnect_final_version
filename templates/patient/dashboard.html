@@ -1,0 +1,282 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Tableau de bord Patient{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/header.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+{% include 'patient/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    {% include 'patient/partials/sidebar.html' %}
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Tableau de bord</h1>
+            <p class="page-subtitle">Bienvenue, {{ current_user.first_name }} {{ current_user.last_name }}</p>
+        </div>
+
+        <!-- Widgets Grid -->
+        <div class="widgets-grid">
+            <!-- Widget: Prochain Rendez-vous -->
+            <div class="widget appointment-widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Prochain Rendez-vous</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    {% if next_appointment %}
+                    <div class="appointment-info">
+                        <div class="doctor-avatar">
+                            {% if next_appointment.doctor.profile_picture %}
+                            <img src="{{ url_for('static', filename=next_appointment.doctor.profile_picture.replace('\\', '/')) }}" alt="Dr. {{ next_appointment.doctor.user.last_name }}">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Dr. {{ next_appointment.doctor.user.last_name }}">
+                            {% endif %}
+                        </div>
+                        <div class="appointment-details">
+                            <h4>Dr. {{ next_appointment.doctor.user.first_name }} {{ next_appointment.doctor.user.last_name }}</h4>
+                            <p>{{ next_appointment.doctor.speciality }}</p>
+                            <div class="appointment-time">
+                                <i class="far fa-clock"></i>
+                                <span>{{ next_appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="appointment-actions">
+                        {% if next_appointment.video_room_id %}
+                        <a href="{{ url_for('patient.doctor_patient_space') }}?appointment_id={{ next_appointment.id }}&room_id={{ next_appointment.video_room_id }}" class="btn-join">
+                            <i class="fas fa-video"></i>
+                            Rejoindre
+                        </a>
+                        {% else %}
+                        <button class="btn-join disabled">
+                            <i class="fas fa-video"></i>
+                            Lien non disponible
+                        </button>
+                        {% endif %}
+                        <a href="{{ url_for('patient.cancel_appointment', appointment_id=next_appointment.id) }}" class="btn-reschedule" onclick="return confirm('Êtes-vous sûr de vouloir annuler ce rendez-vous ?');">
+                            Annuler
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-times"></i>
+                        <p>Aucun rendez-vous à venir</p>
+                        <a href="{{ url_for('patient.find_doctor') }}" class="btn-action btn-primary">Prendre rendez-vous</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="widget-footer">
+                    <span>Consultation vidéo</span>
+                    <a href="{{ url_for('patient.appointments') }}" class="widget-link">Voir tous <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Widget: Messages récents -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Messages récents</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    {% if recent_messages %}
+                        {% for message in recent_messages %}
+                        <div class="message-item">
+                            <div class="message-avatar">
+                                {% if message.sender.role == 'doctor' and message.sender.doctor.profile_picture %}
+                                <img src="{{ url_for('static', filename=message.sender.doctor.profile_picture.replace('\\', '/')) }}" alt="{{ message.sender.first_name }}">
+                                {% else %}
+                                <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="{{ message.sender.first_name }}">
+                                {% endif %}
+                            </div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">
+                                        {% if message.sender.role == 'doctor' %}
+                                        Dr. {{ message.sender.first_name }} {{ message.sender.last_name }}
+                                        {% else %}
+                                        {{ message.sender.first_name }} {{ message.sender.last_name }}
+                                        {% endif %}
+                                    </span>
+                                    <span class="message-time">
+                                        {% if message.created_at.date() == current_time.date() %}
+                                            {{ message.created_at.strftime('%H:%M') }}
+                                        {% elif (current_time.date() - message.created_at.date()).days == 1 %}
+                                            Hier
+                                        {% else %}
+                                            {{ message.created_at.strftime('%d/%m/%Y') }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <p class="message-text">{{ message.content }}</p>
+                                <span class="message-status">{{ 'Non lu' if not message.is_read and message.sender_id != current_user.id else 'Lu' }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-comments"></i>
+                            <p>Aucun message récent</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="widget-footer">
+                    <span>{{ unread_messages_count }} nouveau{{ 's' if unread_messages_count != 1 else '' }} message{{ 's' if unread_messages_count != 1 else '' }}</span>
+                    <a href="{{ url_for('patient.doctor_patient_space') }}" class="widget-link">Voir tous <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Widget: Évolution de la santé -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Évolution de la santé</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    <div class="health-chart">
+                        <canvas id="health-chart"></canvas>
+                    </div>
+
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color legend-tension"></div>
+                            <span>Tension</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color legend-glycemie"></div>
+                            <span>Glycémie</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-footer">
+                    <span>Dernière mise à jour: Aujourd'hui</span>
+                    <a href="#" class="widget-link">Détails <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Widget: Derniers résultats d'analyse -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Derniers résultats</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-flask"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    <div class="result-item">
+                        <span class="result-name">Cholestérol</span>
+                        <span class="result-value result-normal">5.2 mmol/L</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Glycémie à jeun</span>
+                        <span class="result-value result-normal">5.0 mmol/L</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Tension artérielle</span>
+                        <span class="result-value result-warning">135/85 mmHg</span>
+                    </div>
+                    <div class="result-item">
+                        <span class="result-name">Hémoglobine</span>
+                        <span class="result-value result-normal">14.2 g/dL</span>
+                    </div>
+                </div>
+
+                <div class="widget-footer">
+                    <span>15/04/2023</span>
+                    <a href="#" class="widget-link">Voir tous <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Widget: Dernière prescription -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Dernière prescription</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-prescription"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    {% if latest_prescription %}
+                    <div class="prescription-info">
+                        <div class="prescription-doctor">Dr. {{ latest_prescription.doctor.user.first_name }} {{ latest_prescription.doctor.user.last_name }}, {{ latest_prescription.doctor.speciality }}</div>
+                        <div class="prescription-date">Délivrée le {{ latest_prescription.created_at.strftime('%d/%m/%Y') }}</div>
+                    </div>
+
+                    <div class="medication-list">
+                        {% set prescription_lines = latest_prescription.content.split('\n') %}
+                        {% for line in prescription_lines[:3] %}
+                            {% if line.strip() %}
+                            <div class="medication-item">
+                                {% set parts = line.split(',', 1) %}
+                                <span class="medication-name">{{ parts[0].strip() }}</span>
+                                {% if parts|length > 1 %}
+                                <span class="medication-dosage">{{ parts[1].strip() }}</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if prescription_lines|length > 3 %}
+                        <div class="medication-item">
+                            <span class="medication-name">...</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="prescription-qr">
+                        <img src="{{ url_for('static', filename='images/qr-code.png') }}" alt="QR Code">
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-prescription"></i>
+                        <p>Aucune prescription</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="widget-footer">
+                    {% if latest_prescription %}
+                    <span>Prescription #{{ latest_prescription.id }}</span>
+                    {% if latest_prescription.appointment_id %}
+                    <a href="{{ url_for('patient.view_prescription', appointment_id=latest_prescription.appointment_id) }}" class="widget-link">Détails <i class="fas fa-chevron-right"></i></a>
+                    {% else %}
+                    <span class="widget-link disabled">Détails <i class="fas fa-chevron-right"></i></span>
+                    {% endif %}
+                    {% else %}
+                    <span>Aucune prescription</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/patient/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/fix_sidebar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/dashboard.js') }}"></script>
+{% endblock %}

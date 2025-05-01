@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+
+{% block title %}HealthConnect - Connexion{% endblock %}
+
+{% block content %}
+<section class="login-section">
+    <div class="container">
+        <div class="login-container">
+            <div class="login-image">
+                <img src="{{ url_for('static', filename='images/login-illustration1.jpg') }}" alt="Connexion HealthConnect">
+            </div>
+            <div class="login-form-container">
+                <h2>Connexion</h2>
+                <p>Accédez à votre espace personnel</p>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.login') }}" class="login-form">
+                    <div class="form-group">
+                        <label for="email">Adresse Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <div class="password-input">
+                            <input type="password" id="password" name="password" required>
+                            <button type="button" class="toggle-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="remember-me">
+                            <input type="checkbox" name="remember">
+                            <span>Se souvenir de moi</span>
+                        </label>
+                        <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+                </form>
+
+                <div class="login-separator">
+                    <span>ou</span>
+                </div>
+
+                <div class="social-login">
+                    <button class="btn btn-google">
+                        <i class="fab fa-google"></i>
+                        <span>Continuer avec Google</span>
+                    </button>
+                </div>
+
+                <div class="register-link">
+                    <p>Vous n'avez pas de compte ? <a href="{{ url_for('auth.register') }}">Créer un compte</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-section {
+        padding: 120px 0 80px;
+        background-color: var(--light-color);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .login-container {
+        display: flex;
+        background-color: var(--white);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .login-image {
+        flex: 1;
+        background-color: rgba(26, 115, 232, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
+
+    .login-image img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .login-form-container {
+        flex: 1;
+        padding: 50px 40px;
+    }
+
+    .login-form-container h2 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        color: var(--dark-color);
+    }
+
+    .login-form-container p {
+        color: var(--text-light);
+        margin-bottom: 30px;
+    }
+
+    .login-form {
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    .password-input {
+        position: relative;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-light);
+        cursor: pointer;
+    }
+
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .remember-me input {
+        margin-right: 8px;
+    }
+
+    .forgot-password {
+        color: var(--primary-color);
+        font-size: 0.9rem;
+    }
+
+    .btn-block {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .login-separator {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .login-separator::before,
+    .login-separator::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #ced4da;
+    }
+
+    .login-separator span {
+        padding: 0 10px;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .social-login {
+        margin-bottom: 20px;
+    }
+
+    .btn-google {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        padding: 12px;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        color: var(--text-color);
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-google:hover {
+        background-color: #f8f9fa;
+    }
+
+    .btn-google i {
+        margin-right: 10px;
+        color: #DB4437;
+    }
+
+    .register-link {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .register-link a {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    .register-link a:hover {
+        text-decoration: underline;
+    }
+
+    .alert {
+        padding: 12px 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    @media (max-width: 992px) {
+        .login-container {
+            flex-direction: column;
+        }
+
+        .login-image {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle password visibility
+        const togglePassword = document.querySelector('.toggle-password');
+        const passwordInput = document.querySelector('#password');
+
+        togglePassword.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+
+            // Toggle eye icon
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    });
+</script>
+{% endblock %}

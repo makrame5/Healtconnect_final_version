@@ -1,0 +1,13 @@
+/* CSS pour corriger l'affichage en double de la sidebar */
+
+/* Cache les éléments de menu qui apparaissent en dehors de la structure principale */
+body > .menu-category,
+body > .menu-item,
+body > .sidebar:not(.dashboard-container .sidebar) {
+    display: none !important;
+}
+
+/* S'assure que seule la sidebar dans le conteneur principal est visible */
+.dashboard-container .sidebar {
+    display: block !important;
+}

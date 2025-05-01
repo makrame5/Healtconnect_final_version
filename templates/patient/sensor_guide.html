@@ -1,0 +1,265 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Guide des Capteurs{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/header.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/sensor_guide.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/sensor_guide_layout.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+{% include 'patient/partials/header.html' %}
+
+<!-- Structure du dashboard -->
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    {% include 'patient/partials/sidebar.html' %}
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Guide des Capteurs</h1>
+            <p class="page-subtitle">Suivez vos signaux vitaux en temps réel</p>
+        </div>
+
+        <!-- Statut de connexion des capteurs -->
+        <div class="sensor-status-container">
+            <h2 class="section-title">État des capteurs</h2>
+            <div class="sensor-status-grid">
+                <div class="sensor-status-card" id="heartrate-sensor-status">
+                    <div class="sensor-icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="sensor-info">
+                        <div class="sensor-name">Capteur cardiaque</div>
+                        <div class="sensor-connection-status">
+                            <span class="status-indicator disconnected"></span>
+                            <span class="status-text">Déconnecté</span>
+                        </div>
+                    </div>
+                    <div class="sensor-actions">
+                        <button class="btn-action btn-primary btn-connect-sensor" data-sensor-type="heartrate">
+                            <i class="fas fa-plug"></i> Connecter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sensor-status-card" id="blood-pressure-sensor-status">
+                    <div class="sensor-icon">
+                        <i class="fas fa-heartbeat"></i>
+                    </div>
+                    <div class="sensor-info">
+                        <div class="sensor-name">Tensiomètre</div>
+                        <div class="sensor-connection-status">
+                            <span class="status-indicator disconnected"></span>
+                            <span class="status-text">Déconnecté</span>
+                        </div>
+                    </div>
+                    <div class="sensor-actions">
+                        <button class="btn-action btn-primary btn-connect-sensor" data-sensor-type="blood_pressure">
+                            <i class="fas fa-plug"></i> Connecter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sensor-status-card" id="temperature-sensor-status">
+                    <div class="sensor-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <div class="sensor-info">
+                        <div class="sensor-name">Thermomètre</div>
+                        <div class="sensor-connection-status">
+                            <span class="status-indicator disconnected"></span>
+                            <span class="status-text">Déconnecté</span>
+                        </div>
+                    </div>
+                    <div class="sensor-actions">
+                        <button class="btn-action btn-primary btn-connect-sensor" data-sensor-type="temperature">
+                            <i class="fas fa-plug"></i> Connecter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="sensor-status-card" id="oxygen-sensor-status">
+                    <div class="sensor-icon">
+                        <i class="fas fa-lungs"></i>
+                    </div>
+                    <div class="sensor-info">
+                        <div class="sensor-name">Oxymètre</div>
+                        <div class="sensor-connection-status">
+                            <span class="status-indicator disconnected"></span>
+                            <span class="status-text">Déconnecté</span>
+                        </div>
+                    </div>
+                    <div class="sensor-actions">
+                        <button class="btn-action btn-primary btn-connect-sensor" data-sensor-type="oxygen">
+                            <i class="fas fa-plug"></i> Connecter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signaux vitaux en temps réel -->
+        <div class="vital-signs-container">
+            <h2 class="section-title">Signaux vitaux en temps réel</h2>
+            <div class="vital-signs-grid">
+                <div class="vital-sign-card" id="heartrate-card">
+                    <div class="vital-sign-header">
+                        <div class="vital-sign-title">Fréquence cardiaque</div>
+                        <div class="vital-sign-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                    </div>
+                    <div class="vital-sign-value" id="heartrate-value">--</div>
+                    <div class="vital-sign-unit">bpm</div>
+                    <div class="vital-sign-chart">
+                        <canvas id="heartrate-chart"></canvas>
+                    </div>
+                    <div class="vital-sign-status" id="heartrate-status">
+                        <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                    </div>
+                </div>
+
+                <div class="vital-sign-card" id="blood-pressure-card">
+                    <div class="vital-sign-header">
+                        <div class="vital-sign-title">Tension artérielle</div>
+                        <div class="vital-sign-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                    </div>
+                    <div class="vital-sign-value" id="blood-pressure-value">--/--</div>
+                    <div class="vital-sign-unit">mmHg</div>
+                    <div class="vital-sign-chart">
+                        <canvas id="blood-pressure-chart"></canvas>
+                    </div>
+                    <div class="vital-sign-status" id="blood-pressure-status">
+                        <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                    </div>
+                </div>
+
+                <div class="vital-sign-card" id="temperature-card">
+                    <div class="vital-sign-header">
+                        <div class="vital-sign-title">Température</div>
+                        <div class="vital-sign-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                    </div>
+                    <div class="vital-sign-value" id="temperature-value">--</div>
+                    <div class="vital-sign-unit">°C</div>
+                    <div class="vital-sign-chart">
+                        <canvas id="temperature-chart"></canvas>
+                    </div>
+                    <div class="vital-sign-status" id="temperature-status">
+                        <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                    </div>
+                </div>
+
+                <div class="vital-sign-card" id="oxygen-card">
+                    <div class="vital-sign-header">
+                        <div class="vital-sign-title">Saturation en oxygène</div>
+                        <div class="vital-sign-icon">
+                            <i class="fas fa-lungs"></i>
+                        </div>
+                    </div>
+                    <div class="vital-sign-value" id="oxygen-value">--</div>
+                    <div class="vital-sign-unit">%</div>
+                    <div class="vital-sign-chart">
+                        <canvas id="oxygen-chart"></canvas>
+                    </div>
+                    <div class="vital-sign-status" id="oxygen-status">
+                        <i class="fas fa-circle-notch fa-spin"></i> En attente de données...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guide d'utilisation des capteurs -->
+        <div class="sensor-guide-container">
+            <h2 class="section-title">Guide d'utilisation des capteurs</h2>
+
+            <div class="accordion">
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <i class="fas fa-heart"></i> Comment utiliser le capteur cardiaque
+                        <i class="fas fa-chevron-down accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Le capteur cardiaque se porte au poignet ou sur la poitrine selon le modèle. Assurez-vous que le capteur est bien en contact avec la peau pour des mesures précises.</p>
+                        <p>Pour connecter votre capteur :</p>
+                        <ol>
+                            <li>Allumez votre capteur en appuyant sur le bouton d'alimentation</li>
+                            <li>Assurez-vous que le Bluetooth est activé sur votre appareil</li>
+                            <li>Cliquez sur le bouton "Connecter" ci-dessus</li>
+                            <li>Sélectionnez votre capteur dans la liste des appareils disponibles</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <i class="fas fa-heartbeat"></i> Comment utiliser le tensiomètre
+                        <i class="fas fa-chevron-down accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Le tensiomètre doit être placé sur le bras gauche, à environ 2-3 cm au-dessus du coude. Assurez-vous d'être assis confortablement avec le bras posé sur une surface plane.</p>
+                        <p>Pour connecter votre tensiomètre :</p>
+                        <ol>
+                            <li>Allumez votre tensiomètre</li>
+                            <li>Assurez-vous que le Bluetooth est activé sur votre appareil</li>
+                            <li>Cliquez sur le bouton "Connecter" ci-dessus</li>
+                            <li>Sélectionnez votre tensiomètre dans la liste des appareils disponibles</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <i class="fas fa-thermometer-half"></i> Comment utiliser le thermomètre
+                        <i class="fas fa-chevron-down accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>Le thermomètre connecté peut être utilisé de différentes manières selon le modèle (frontal, auriculaire, etc.). Suivez les instructions spécifiques à votre modèle pour des mesures précises.</p>
+                        <p>Pour connecter votre thermomètre :</p>
+                        <ol>
+                            <li>Allumez votre thermomètre</li>
+                            <li>Assurez-vous que le Bluetooth est activé sur votre appareil</li>
+                            <li>Cliquez sur le bouton "Connecter" ci-dessus</li>
+                            <li>Sélectionnez votre thermomètre dans la liste des appareils disponibles</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <div class="accordion-header">
+                        <i class="fas fa-lungs"></i> Comment utiliser l'oxymètre
+                        <i class="fas fa-chevron-down accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content">
+                        <p>L'oxymètre se place sur le bout du doigt. Assurez-vous que vos mains sont chaudes et détendues, et que vos ongles ne sont pas recouverts de vernis.</p>
+                        <p>Pour connecter votre oxymètre :</p>
+                        <ol>
+                            <li>Allumez votre oxymètre</li>
+                            <li>Assurez-vous que le Bluetooth est activé sur votre appareil</li>
+                            <li>Cliquez sur le bouton "Connecter" ci-dessus</li>
+                            <li>Sélectionnez votre oxymètre dans la liste des appareils disponibles</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="{{ url_for('static', filename='js/patient/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/fix_duplicate_sidebar.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/sensor_guide.js') }}"></script>
+{% endblock %}

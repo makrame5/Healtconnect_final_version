@@ -1,0 +1,275 @@
+/* Styles pour la page de toutes les notifications */
+
+.notifications-container {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.notifications-count {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.notifications-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-mark-all {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.btn-mark-all:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.notifications-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    display: flex;
+    padding: 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+    position: relative;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.notification-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(36, 113, 163, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+.notification-icon i {
+    color: var(--primary-color);
+    font-size: 1.4rem;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+}
+
+.notification-text {
+    color: var(--text-color);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.notification-time {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
+
+.notification-actions {
+    margin-left: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.btn-mark-read {
+    background-color: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.btn-mark-read:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.notification-unread {
+    background-color: rgba(36, 113, 163, 0.05);
+}
+
+.notification-unread .notification-title {
+    font-weight: 700;
+}
+
+.notification-empty {
+    display: flex;
+    padding: 40px 20px;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+    text-align: center;
+    flex-direction: column;
+}
+
+.notification-empty .notification-icon {
+    width: 80px;
+    height: 80px;
+    margin-right: 0;
+    margin-bottom: 20px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.notification-empty .notification-icon i {
+    font-size: 2rem;
+    color: var(--text-light);
+}
+
+.notification-empty .notification-text {
+    font-size: 1.1rem;
+}
+
+/* Styles spécifiques pour les différents types de notifications */
+/* Notification de test */
+.notification-item[data-notification-type="test"] .notification-icon {
+    background-color: rgba(155, 89, 182, 0.1);
+}
+
+.notification-item[data-notification-type="test"] .notification-icon i {
+    color: #9b59b6;
+}
+
+/* Rendez-vous */
+.notification-item[data-notification-type="appointment"] .notification-icon {
+    background-color: rgba(52, 152, 219, 0.1);
+}
+
+.notification-item[data-notification-type="appointment"] .notification-icon i {
+    color: #3498db;
+}
+
+/* Rendez-vous accepté */
+.notification-item[data-notification-type="appointment_accepted"] .notification-icon {
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+.notification-item[data-notification-type="appointment_accepted"] .notification-icon i {
+    color: #2ecc71;
+}
+
+/* Rendez-vous refusé */
+.notification-item[data-notification-type="appointment_rejected"] .notification-icon {
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+.notification-item[data-notification-type="appointment_rejected"] .notification-icon i {
+    color: #e74c3c;
+}
+
+/* Rendez-vous annulé */
+.notification-item[data-notification-type="appointment_cancelled"] .notification-icon {
+    background-color: rgba(243, 156, 18, 0.1);
+}
+
+.notification-item[data-notification-type="appointment_cancelled"] .notification-icon i {
+    color: #f39c12;
+}
+
+/* Rendez-vous terminé */
+.notification-item[data-notification-type="appointment_completed"] .notification-icon {
+    background-color: rgba(52, 73, 94, 0.1);
+}
+
+.notification-item[data-notification-type="appointment_completed"] .notification-icon i {
+    color: #34495e;
+}
+
+/* Rappel de rendez-vous */
+.notification-item[data-notification-type="appointment_reminder"] .notification-icon {
+    background-color: rgba(241, 196, 15, 0.1);
+}
+
+.notification-item[data-notification-type="appointment_reminder"] .notification-icon i {
+    color: #f1c40f;
+}
+
+/* Rendez-vous supprimé */
+.notification-item[data-notification-type="appointment_deleted"] .notification-icon {
+    background-color: rgba(189, 195, 199, 0.1);
+}
+
+.notification-item[data-notification-type="appointment_deleted"] .notification-icon i {
+    color: #bdc3c7;
+}
+
+/* Message */
+.notification-item[data-notification-type="message"] .notification-icon {
+    background-color: rgba(142, 68, 173, 0.1);
+}
+
+.notification-item[data-notification-type="message"] .notification-icon i {
+    color: #8e44ad;
+}
+
+/* Prescription */
+.notification-item[data-notification-type="prescription"] .notification-icon {
+    background-color: rgba(22, 160, 133, 0.1);
+}
+
+.notification-item[data-notification-type="prescription"] .notification-icon i {
+    color: #16a085;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .notification-item {
+        flex-direction: column;
+    }
+    
+    .notification-icon {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+    
+    .notification-actions {
+        margin-left: 0;
+        margin-top: 15px;
+    }
+    
+    .notifications-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}

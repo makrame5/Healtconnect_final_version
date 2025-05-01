@@ -1,0 +1,276 @@
+/* Styles pour la page Guide des Capteurs */
+
+.sensor-status-container,
+.vital-signs-container,
+.sensor-guide-container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Grille des statuts de capteurs */
+.sensor-status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.sensor-status-card {
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.sensor-status-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.sensor-icon {
+    font-size: 2rem;
+    color: #3498db;
+    margin-right: 15px;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(52, 152, 219, 0.1);
+    border-radius: 50%;
+}
+
+.sensor-info {
+    flex: 1;
+}
+
+.sensor-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.sensor-connection-status {
+    display: flex;
+    align-items: center;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.status-indicator.connected {
+    background-color: #2ecc71;
+}
+
+.status-indicator.disconnected {
+    background-color: #e74c3c;
+}
+
+.status-indicator.connecting {
+    background-color: #f39c12;
+}
+
+.status-text {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+}
+
+.sensor-actions {
+    margin-left: 10px;
+}
+
+/* Grille des signaux vitaux */
+.vital-signs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.vital-sign-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.vital-sign-card:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.vital-sign-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.vital-sign-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.vital-sign-icon {
+    font-size: 1.5rem;
+    color: #3498db;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(52, 152, 219, 0.1);
+    border-radius: 50%;
+}
+
+.vital-sign-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.vital-sign-unit {
+    font-size: 1rem;
+    color: #7f8c8d;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.vital-sign-chart {
+    height: 100px;
+    margin-bottom: 15px;
+}
+
+.vital-sign-status {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.vital-sign-status.normal {
+    color: #2ecc71;
+    background-color: rgba(46, 204, 113, 0.1);
+}
+
+.vital-sign-status.warning {
+    color: #f39c12;
+    background-color: rgba(243, 156, 18, 0.1);
+}
+
+.vital-sign-status.danger {
+    color: #e74c3c;
+    background-color: rgba(231, 76, 60, 0.1);
+}
+
+/* Accordéon pour le guide d'utilisation */
+.accordion {
+    margin-top: 20px;
+}
+
+.accordion-item {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+.accordion-header {
+    background-color: #f8f9fa;
+    padding: 15px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background-color 0.3s ease;
+}
+
+.accordion-header:hover {
+    background-color: #e9ecef;
+}
+
+.accordion-header i:not(.accordion-icon) {
+    margin-right: 10px;
+    color: #3498db;
+}
+
+.accordion-icon {
+    transition: transform 0.3s ease;
+}
+
+.accordion-item.active .accordion-icon {
+    transform: rotate(180deg);
+}
+
+.accordion-content {
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+}
+
+.accordion-item.active .accordion-content {
+    padding: 20px;
+    max-height: 500px;
+}
+
+.accordion-content p {
+    margin-bottom: 15px;
+}
+
+.accordion-content ol {
+    padding-left: 20px;
+}
+
+.accordion-content li {
+    margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sensor-status-grid,
+    .vital-signs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vital-sign-value {
+        font-size: 2rem;
+    }
+}
+
+/* Animation pour les valeurs qui changent */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.value-updated {
+    animation: pulse 0.5s ease;
+}

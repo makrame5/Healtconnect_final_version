@@ -1,0 +1,301 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Modifier le Profil Patient{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/profile.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/header.css') }}">
+<style>
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 0.95rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(36, 113, 163, 0.1);
+        outline: none;
+    }
+
+    .form-section {
+        margin-bottom: 30px;
+    }
+
+    .form-section-title {
+        font-size: 1.2rem;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-cancel {
+        background-color: #e0e0e0;
+        color: var(--text-color);
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-cancel:hover {
+        background-color: #d0d0d0;
+    }
+
+    .btn-save {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-save:hover {
+        background-color: #1a5276;
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+{% include 'patient/partials/header.html' %}
+
+<!-- Layout principal -->
+<div class="patient-profile">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Menu</div>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">Santé Connectée</div>
+            <a href="{{ url_for('patient.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-heartbeat"></i>
+                <span class="menu-text">Guide des Capteurs</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-brain"></i>
+                <span class="menu-text">Analyse IA de Santé</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-robot"></i>
+                <span class="menu-text">Assistant Virtuel</span>
+            </a>
+
+            <div class="menu-category">Suivi Médical</div>
+            <a href="{{ url_for('patient.find_doctor') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Trouver un Médecin</span>
+            </a>
+            <a href="{{ url_for('patient.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Mes Rendez-vous</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-file-medical"></i>
+                <span class="menu-text">Mes Documents</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-pills"></i>
+                <span class="menu-text">Mes Médicaments</span>
+            </a>
+
+            <div class="menu-category">Ressources</div>
+            <a href="#" class="menu-item">
+                <i class="fas fa-book-medical"></i>
+                <span class="menu-text">Bibliothèque Médicale</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-comments"></i>
+                <span class="menu-text">Communauté</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-question-circle"></i>
+                <span class="menu-text">Aide & Support</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Modifier le Profil</h1>
+            <p class="page-subtitle">Mettez à jour vos informations personnelles et médicales</p>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="profile-content">
+            <form method="POST" action="{{ url_for('patient.edit_profile') }}">
+                <!-- Informations de base -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Informations de base</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name" class="form-label">Prénom</label>
+                            <input type="text" id="first_name" name="first_name" class="form-control" value="{{ current_user.first_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name" class="form-label">Nom</label>
+                            <input type="text" id="last_name" name="last_name" class="form-control" value="{{ current_user.last_name }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations personnelles -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Informations personnelles</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="birth_date" class="form-label">Date de naissance</label>
+                            <input type="date" id="birth_date" name="birth_date" class="form-control" value="{{ patient.birth_date.strftime('%Y-%m-%d') if patient.birth_date else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="gender" class="form-label">Genre</label>
+                            <select id="gender" name="gender" class="form-control">
+                                <option value="">Sélectionner</option>
+                                <option value="male" {% if patient.gender == 'male' %}selected{% endif %}>Homme</option>
+                                <option value="female" {% if patient.gender == 'female' %}selected{% endif %}>Femme</option>
+                                <option value="other" {% if patient.gender == 'other' %}selected{% endif %}>Autre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone" class="form-label">Téléphone</label>
+                            <input type="tel" id="phone" name="phone" class="form-control" value="{{ patient.phone or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="address" class="form-label">Adresse</label>
+                            <input type="text" id="address" name="address" class="form-control" value="{{ patient.address or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_number" class="form-label">Numéro d'identité</label>
+                            <input type="text" id="id_number" name="id_number" class="form-control" value="{{ patient.id_number or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="insurance" class="form-label">Assurance</label>
+                            <input type="text" id="insurance" name="insurance" class="form-control" value="{{ patient.insurance or '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations médicales -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Informations médicales</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="blood_type" class="form-label">Groupe sanguin</label>
+                            <select id="blood_type" name="blood_type" class="form-control">
+                                <option value="">Sélectionner</option>
+                                <option value="A+" {% if patient.blood_type == 'A+' %}selected{% endif %}>A+</option>
+                                <option value="A-" {% if patient.blood_type == 'A-' %}selected{% endif %}>A-</option>
+                                <option value="B+" {% if patient.blood_type == 'B+' %}selected{% endif %}>B+</option>
+                                <option value="B-" {% if patient.blood_type == 'B-' %}selected{% endif %}>B-</option>
+                                <option value="AB+" {% if patient.blood_type == 'AB+' %}selected{% endif %}>AB+</option>
+                                <option value="AB-" {% if patient.blood_type == 'AB-' %}selected{% endif %}>AB-</option>
+                                <option value="O+" {% if patient.blood_type == 'O+' %}selected{% endif %}>O+</option>
+                                <option value="O-" {% if patient.blood_type == 'O-' %}selected{% endif %}>O-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="allergies" class="form-label">Allergies</label>
+                            <textarea id="allergies" name="allergies" class="form-control">{{ patient.allergies or '' }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="chronic_diseases" class="form-label">Maladies chroniques</label>
+                            <textarea id="chronic_diseases" name="chronic_diseases" class="form-control">{{ patient.chronic_diseases or '' }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="current_medications" class="form-label">Médicaments actuels</label>
+                            <textarea id="current_medications" name="current_medications" class="form-control">{{ patient.current_medications or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact d'urgence -->
+                <div class="form-section">
+                    <h3 class="form-section-title">Contact d'urgence</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="emergency_contact_name" class="form-label">Nom du contact</label>
+                            <input type="text" id="emergency_contact_name" name="emergency_contact_name" class="form-control" value="{{ patient.emergency_contact_name or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="emergency_contact_phone" class="form-label">Téléphone du contact</label>
+                            <input type="tel" id="emergency_contact_phone" name="emergency_contact_phone" class="form-control" value="{{ patient.emergency_contact_phone or '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="social_security_number" class="form-label">Numéro de sécurité sociale</label>
+                            <input type="text" id="social_security_number" name="social_security_number" class="form-control" value="{{ patient.social_security_number or '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="form-actions">
+                    <a href="{{ url_for('patient.profile') }}" class="btn-cancel">Annuler</a>
+                    <button type="submit" class="btn-save">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/patient/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/profile.js') }}"></script>
+{% endblock %}

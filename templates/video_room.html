@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthConnect - Consultation Vidéo</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}" type="image/x-icon">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/variables.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/video_room.css') }}">
+</head>
+<body data-user-role="{{ user_role }}" data-user-name="{{ user_name }}" data-other-name="{{ other_name }}" data-room-id="{{ room_id }}" data-user-id="{{ current_user.id }}">
+    <div class="video-room-container">
+        <!-- Header -->
+        <div class="video-room-header">
+            <div class="room-info">
+                <div class="room-logo">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HealthConnect Logo">
+                    <span>HealthConnect</span>
+                </div>
+                <div class="room-details">
+                    <div class="room-title">Consultation Vidéo</div>
+                    <div class="room-subtitle">{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</div>
+                </div>
+            </div>
+            <div class="room-actions">
+                {% if user_role == 'doctor' %}
+                <a href="{{ url_for('doctor.prescription', appointment_id=appointment.id) }}" class="room-action-btn">
+                    <i class="fas fa-file-prescription"></i> Prescription
+                </a>
+                <a href="{{ url_for('doctor.virtual_office') }}" class="room-action-btn">
+                    <i class="fas fa-arrow-left"></i> Retour au cabinet
+                </a>
+                {% else %}
+                <a href="{{ url_for('patient.doctor_patient_space') }}" class="room-action-btn">
+                    <i class="fas fa-arrow-left"></i> Retour à l'espace médecin
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="video-room-content">
+            <!-- Video Container -->
+            <div class="video-container">
+                <div class="video-grid">
+                    <div class="video-placeholder">
+                        <i class="fas fa-video"></i>
+                        <p>Cliquez sur "Démarrer la consultation" pour activer votre caméra et votre microphone</p>
+                        <button class="btn-action" id="start-consultation">
+                            <i class="fas fa-play"></i> Démarrer la consultation
+                        </button>
+                    </div>
+                </div>
+
+                <div class="video-controls" style="display: none;">
+                    <button class="video-control-btn" id="toggle-mic">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="video-control-btn" id="toggle-video">
+                        <i class="fas fa-video"></i>
+                    </button>
+                    <button class="video-control-btn" id="toggle-screen">
+                        <i class="fas fa-desktop"></i>
+                    </button>
+                    <button class="video-control-btn end-call" id="end-call">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sidebar Panel -->
+            <div class="sidebar-panel">
+                <div class="sidebar-tabs">
+                    <div class="sidebar-tab active" data-tab="chat">Chat</div>
+                    <div class="sidebar-tab" data-tab="files">Fichiers</div>
+                    {% if user_role == 'doctor' %}
+                    <div class="sidebar-tab" data-tab="notes">Notes</div>
+                    {% endif %}
+                    <div class="sidebar-tab" data-tab="participants">Participants</div>
+                </div>
+
+                <div class="sidebar-content">
+                    <div id="chat" class="tab-panel active">
+                        <div class="chat-messages" id="chat-messages">
+                            <!-- Les messages seront ajoutés ici dynamiquement -->
+                        </div>
+
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" placeholder="Tapez votre message...">
+                            <button id="send-message"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="files" class="tab-panel">
+                        <div class="files-list" id="files-list">
+                            <!-- Les fichiers partagés seront ajoutés ici dynamiquement -->
+                        </div>
+
+                        <div class="file-upload">
+                            <label for="file-input" class="file-upload-btn">
+                                <i class="fas fa-file-upload"></i> Partager un fichier
+                            </label>
+                            <input type="file" id="file-input" style="display: none;">
+                            <div class="file-info" id="file-info" style="display: none;">
+                                <span id="file-name"></span>
+                                <button id="upload-file" class="upload-btn">Envoyer</button>
+                                <button id="cancel-upload" class="cancel-btn">Annuler</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if user_role == 'doctor' %}
+                    <div id="notes" class="tab-panel">
+                        <div class="notes-form">
+                            <textarea id="notes-content" placeholder="Saisissez vos notes médicales ici..."></textarea>
+                            <div class="notes-actions">
+                                <span id="notes-status" class="notes-status"></span>
+                                <button id="save-notes" class="save-btn">Enregistrer</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div id="participants" class="tab-panel">
+                        <div class="participants-list" id="participants-list">
+                            <div class="participant-item">
+                                <div class="participant-avatar">
+                                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Avatar">
+                                </div>
+                                <div>
+                                    <div class="participant-name">{{ user_name }} (Vous)</div>
+                                    <div class="participant-role">{{ user_role|capitalize }}</div>
+                                </div>
+                                <div class="participant-status online"></div>
+                            </div>
+
+                            <div class="participant-item" id="other-participant">
+                                <div class="participant-avatar">
+                                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Avatar">
+                                </div>
+                                <div>
+                                    <div class="participant-name">{{ other_name }}</div>
+                                    <div class="participant-role">{{ other_role|capitalize }}</div>
+                                </div>
+                                <div class="participant-status"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates pour les éléments dynamiques -->
+    <template id="message-template">
+        <div class="chat-message">
+            <div class="message-header">
+                <span class="message-sender"></span>
+                <span class="message-time"></span>
+            </div>
+            <div class="message-content"></div>
+        </div>
+    </template>
+
+    <template id="file-template">
+        <div class="file-item">
+            <div class="file-icon">
+                <i class="fas fa-file"></i>
+            </div>
+            <div class="file-details">
+                <div class="file-name"></div>
+                <div class="file-info">
+                    <span class="file-size"></span>
+                    <span class="file-sender"></span>
+                </div>
+            </div>
+            <a class="file-download" download>
+                <i class="fas fa-download"></i>
+            </a>
+        </div>
+    </template>
+
+    <!-- Socket.IO -->
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <!-- WebRTC Adapter -->
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    <!-- Script de caméra virtuelle pour les tests -->
+    <script src="{{ url_for('static', filename='js/fake-camera.js') }}"></script>
+    <!-- Script de débogage WebRTC -->
+    <script src="{{ url_for('static', filename='js/webrtc-debug.js') }}"></script>
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/video_room.js') }}"></script>
+</body>
+</html>

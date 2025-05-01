@@ -1,0 +1,207 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Réserver un rendez-vous{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/find_doctor.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+<div class="topbar">
+    <div class="topbar-logo">
+        <a href="{{ url_for('index') }}" class="logo-link">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HealthConnect Logo">
+            <span>HealthConnect</span>
+        </a>
+    </div>
+
+    <div class="topbar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher...">
+    </div>
+
+    <div class="topbar-actions">
+        <div class="topbar-notification">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+        </div>
+
+        <div class="topbar-profile">
+            <div class="profile-avatar">
+                <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Avatar">
+            </div>
+            <span class="profile-name">{{ current_user.first_name }}</span>
+        </div>
+    </div>
+
+    <!-- Bouton menu mobile -->
+    <button id="mobile-menu-toggle" class="d-md-none">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">Santé Connectée</div>
+            <a href="{{ url_for('patient.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-heartbeat"></i>
+                <span class="menu-text">Guide des Capteurs</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-brain"></i>
+                <span class="menu-text">Analyse IA de Santé</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-robot"></i>
+                <span class="menu-text">Assistant Virtuel</span>
+            </a>
+
+            <div class="menu-category">Suivi Médical</div>
+            <a href="{{ url_for('patient.find_doctor') }}" class="menu-item active">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Trouver un Médecin</span>
+            </a>
+            <a href="{{ url_for('patient.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Mes rendez-vous</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-line"></i>
+                <span class="menu-text">Profil de Santé</span>
+            </a>
+
+            <div class="menu-category">Ressources</div>
+            <a href="#" class="menu-item">
+                <i class="fas fa-map-marked-alt"></i>
+                <span class="menu-text">Itinéraires</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-folder-open"></i>
+                <span class="menu-text">Dossier Médical</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-pills"></i>
+                <span class="menu-text">Gestion des Médicaments</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Réserver un rendez-vous</h1>
+            <p class="page-subtitle">
+                <a href="{{ url_for('patient.doctor_availability', doctor_id=doctor.id) }}" class="btn-link">
+                    <i class="fas fa-arrow-left me-1"></i> Retour aux disponibilités
+                </a>
+            </p>
+        </div>
+
+        <!-- Résumé du rendez-vous -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">Résumé du rendez-vous</h3>
+                <div class="widget-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+            </div>
+            <div class="widget-content">
+                <div class="alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Vous êtes sur le point de réserver une téléconsultation avec <strong>Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</strong> le <strong>{{ availability.date.strftime('%d/%m/%Y') }}</strong> de <strong>{{ availability.start_time.strftime('%H:%M') }}</strong> à <strong>{{ availability.end_time.strftime('%H:%M') }}</strong>.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de réservation -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">Formulaire de réservation</h3>
+                <div class="widget-icon">
+                    <i class="fas fa-edit"></i>
+                </div>
+            </div>
+            <div class="widget-content">
+                <form method="POST" action="{{ url_for('patient.book_appointment', availability_id=availability.id) }}">
+                    <div class="form-group mb-4">
+                        <label for="notes" class="form-label">Motif de la consultation <span class="text-muted">(facultatif)</span></label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4" placeholder="Décrivez brièvement le motif de votre consultation..."></textarea>
+                        <div class="form-text">Ces informations aideront le médecin à se préparer pour votre consultation.</div>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            J'accepte les <a href="#" target="_blank">conditions d'utilisation</a> et la <a href="#" target="_blank">politique de confidentialité</a> de HealthConnect.
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Confirmer la réservation</button>
+                        <a href="{{ url_for('patient.doctor_availability', doctor_id=doctor.id) }}" class="btn-outline">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Informations sur le médecin -->
+        <div class="widget">
+            <div class="widget-header">
+                <h3 class="widget-title">Informations sur le médecin</h3>
+                <div class="widget-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+            </div>
+            <div class="widget-content">
+                <div class="doctor-card">
+                    <div class="doctor-avatar">
+                        {% if doctor.profile_picture %}
+                            <img src="{{ url_for('static', filename=doctor.profile_picture) }}" alt="Photo du Dr. {{ doctor.user.last_name }}">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Photo par défaut">
+                        {% endif %}
+                    </div>
+                    <div class="doctor-info">
+                        <h4>Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h4>
+                        <p><strong>Spécialité:</strong> {{ doctor.speciality }}</p>
+                        <p><strong>Tarif de consultation:</strong> {{ doctor.consultation_fee }}€</p>
+                        {% if doctor.bio %}
+                            <p><strong>À propos:</strong> {{ doctor.bio|truncate(150) }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/patient/dashboard.js') }}"></script>
+{% endblock %}

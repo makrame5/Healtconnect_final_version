@@ -1,0 +1,1047 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Profil Médecin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/dashboard.css') }}">
+<style>
+    .profile-container {
+        padding: 30px;
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin-right: 30px;
+    }
+
+    .profile-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--white);
+        box-shadow: var(--shadow);
+    }
+
+    .avatar-upload {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        background-color: var(--primary-color);
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .avatar-upload:hover {
+        background-color: #1a5276;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 5px;
+        color: var(--text-color);
+    }
+
+    .profile-specialty {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 15px;
+    }
+
+    .profile-tabs {
+        display: flex;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 30px;
+    }
+
+    .profile-tab {
+        padding: 15px 20px;
+        font-weight: 500;
+        color: var(--text-light);
+        cursor: pointer;
+        border-bottom: 3px solid transparent;
+        transition: var(--transition);
+    }
+
+    .profile-tab.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .form-section {
+        margin-bottom: 30px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        margin-right: 10px;
+        color: var(--primary-color);
+    }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -10px;
+    }
+
+    .form-group {
+        flex: 1;
+        min-width: 250px;
+        padding: 0 10px;
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        font-size: 0.95rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(36, 113, 163, 0.1);
+        outline: none;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+        background-color: #1a5276;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        color: var(--primary-color);
+        border: 1px solid var(--primary-color);
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .btn-outline:hover {
+        background-color: rgba(36, 113, 163, 0.1);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .calendar-container {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .calendar-day {
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .calendar-day.active {
+        background-color: rgba(36, 113, 163, 0.1);
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .calendar-day:hover {
+        background-color: rgba(36, 113, 163, 0.05);
+    }
+
+    .time-slots {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .time-slot {
+        padding: 8px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: var(--transition);
+        font-size: 0.9rem;
+    }
+
+    .time-slot.active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+
+    .time-slot:hover {
+        background-color: rgba(36, 113, 163, 0.05);
+    }
+
+    .toggle-container {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .toggle-label {
+        margin-right: 10px;
+        font-weight: 500;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 24px;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+        background-color: var(--primary-color);
+    }
+
+    input:checked + .toggle-slider:before {
+        transform: translateX(26px);
+    }
+
+    .documents-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .document-item {
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        padding: 15px;
+        position: relative;
+    }
+
+    .document-icon {
+        font-size: 2rem;
+        color: var(--primary-color);
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .document-name {
+        font-weight: 500;
+        margin-bottom: 5px;
+        word-break: break-word;
+    }
+
+    .document-size {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin-bottom: 10px;
+    }
+
+    .document-actions {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .document-action {
+        color: var(--text-light);
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .document-action:hover {
+        color: var(--primary-color);
+    }
+
+    .document-action.delete:hover {
+        color: #e74c3c;
+    }
+
+    .dropzone {
+        border: 2px dashed #e0e0e0;
+        border-radius: 5px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+    }
+
+    .dropzone:hover {
+        border-color: var(--primary-color);
+        background-color: rgba(36, 113, 163, 0.05);
+    }
+
+    .dropzone-icon {
+        font-size: 2rem;
+        color: var(--text-light);
+        margin-bottom: 10px;
+    }
+
+    .dropzone-text {
+        color: var(--text-light);
+        margin-bottom: 5px;
+    }
+
+    .dropzone-info {
+        font-size: 0.8rem;
+        color: var(--text-light);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'doctor/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">CLINIC</div>
+            <a href="{{ url_for('doctor.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="{{ url_for('doctor.patients') }}" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span class="menu-text">Patients</span>
+            </a>
+            <a href="{{ url_for('doctor.virtual_office') }}" class="menu-item">
+                <i class="fas fa-laptop-medical"></i>
+                <span class="menu-text">Cabinet Virtuel</span>
+            </a>
+            <a href="{{ url_for('doctor.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Rendez-vous</span>
+            </a>
+
+            <div class="menu-category">INTERACTION</div>
+            <a href="{{ url_for('doctor.smart_agenda') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Agenda Intelligent</span>
+            </a>
+            <a href="{{ url_for('doctor.waiting_room') }}" class="menu-item">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="menu-text">File d'Attente</span>
+            </a>
+
+            <div class="menu-category">RÉSEAU COLLABORATIF</div>
+            <a href="{{ url_for('doctor.medical_network') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Réseau Médical</span>
+            </a>
+            <a href="{{ url_for('doctor.hospital_references') }}" class="menu-item">
+                <i class="fas fa-hospital"></i>
+                <span class="menu-text">Références Hospitalières</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('doctor.settings') }}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Mon Profil</h1>
+            <p class="page-subtitle">Gérez vos informations personnelles et professionnelles</p>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar-container">
+                    <img src="{{ url_for('static', filename=current_user.doctor.profile_picture.replace('\\', '/')) if current_user.doctor.profile_picture else url_for('static', filename='images/default-avatar.png') }}" alt="Avatar" class="profile-avatar">
+                    <label for="avatar-upload" class="avatar-upload">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <form id="avatar-form" method="POST" enctype="multipart/form-data" action="{{ url_for('doctor.profile') }}" style="display: none;">
+                        <input type="file" id="avatar-upload" name="avatar" accept="image/*" onchange="document.getElementById('avatar-form').submit();">
+                    </form>
+                </div>
+                <div class="profile-info">
+                    <h2 class="profile-name">Dr. {{ current_user.first_name }} {{ current_user.last_name }}</h2>
+                    <p class="profile-specialty">{{ current_user.doctor.speciality }}</p>
+                </div>
+            </div>
+
+            <div class="profile-tabs">
+                <div class="profile-tab active" data-tab="professional-info">
+                    <i class="fas fa-user-md"></i> Informations professionnelles
+                </div>
+                <div class="profile-tab" data-tab="biography">
+                    <i class="fas fa-book"></i> Biographie & Langues
+                </div>
+                <div class="profile-tab" data-tab="contact">
+                    <i class="fas fa-address-card"></i> Coordonnées
+                </div>
+                <div class="profile-tab" data-tab="availability">
+                    <i class="fas fa-calendar-alt"></i> Disponibilités
+                </div>
+                <div class="profile-tab" data-tab="preferences">
+                    <i class="fas fa-cog"></i> Préférences & Sécurité
+                </div>
+                <div class="profile-tab" data-tab="documents">
+                    <i class="fas fa-file-medical"></i> Diplômes & Documents
+                </div>
+            </div>
+
+            <!-- Informations professionnelles -->
+            <div id="professional-info" class="tab-content active">
+                <form id="professional-form" method="POST" action="{{ url_for('doctor.profile') }}">
+                    <input type="hidden" name="form_type" value="professional">
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-id-card"></i> Identité</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first_name" class="form-label">Prénom</label>
+                                <input type="text" id="first_name" name="first_name" class="form-control" value="{{ current_user.first_name }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name" class="form-label">Nom</label>
+                                <input type="text" id="last_name" name="last_name" class="form-control" value="{{ current_user.last_name }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-stethoscope"></i> Spécialités</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="primary_specialty" class="form-label">Spécialité principale</label>
+                                <input type="text" id="primary_specialty" name="primary_specialty" class="form-control" value="{{ current_user.doctor.speciality }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="secondary_specialty" class="form-label">Spécialité secondaire</label>
+                                <input type="text" id="secondary_specialty" name="secondary_specialty" class="form-control" value="{{ current_user.doctor.secondary_speciality or '' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-certificate"></i> Enregistrement</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="registration_number" class="form-label">N° d'enregistrement médical</label>
+                                <input type="text" id="registration_number" name="registration_number" class="form-control" value="{{ current_user.doctor.license_number or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="practice_location" class="form-label">Lieu d'exercice</label>
+                                <input type="text" id="practice_location" name="practice_location" class="form-control" value="{{ current_user.doctor.practice_location or '' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-briefcase"></i> Expérience</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="experience_years" class="form-label">Années d'expérience</label>
+                                <input type="number" id="experience_years" name="experience_years" class="form-control" value="{{ current_user.doctor.years_experience or '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="previous_positions" class="form-label">Postes précédents</label>
+                                <input type="text" id="previous_positions" name="previous_positions" class="form-control" value="{{ current_user.doctor.previous_positions or '' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="window.location.href='{{ url_for('doctor.dashboard') }}'">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Biographie & Langues -->
+            <div id="biography" class="tab-content">
+                <form id="biography-form" method="POST" action="{{ url_for('doctor.profile') }}">
+                    <input type="hidden" name="form_type" value="biography">
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-book-open"></i> Présentation</h3>
+                        <div class="form-group">
+                            <label for="biography" class="form-label">Biographie (visible dans l'espace public)</label>
+                            <textarea id="biography" name="biography" class="form-control">{{ current_user.doctor.bio or 'Médecin spécialiste avec plus de 10 ans d\'expérience. Diplômé de la Faculté de Médecine de Paris. Spécialisé dans le traitement des maladies cardiovasculaires.' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-language"></i> Langues parlées</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="languages" class="form-label">Langues</label>
+                                <input type="text" id="languages" name="languages" class="form-control" value="{{ current_user.doctor.languages or 'Français, Anglais, Espagnol' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="window.location.href='{{ url_for('doctor.dashboard') }}'">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Coordonnées -->
+            <div id="contact" class="tab-content">
+                <form id="contact-form" method="POST" action="{{ url_for('doctor.profile') }}">
+                    <input type="hidden" name="form_type" value="contact">
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-envelope"></i> Email</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email" class="form-label">Email professionnel</label>
+                                <input type="email" id="email" name="email" class="form-control" value="{{ current_user.email }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-phone"></i> Téléphone</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="phone" class="form-label">Téléphone</label>
+                                <input type="tel" id="phone" name="phone" class="form-control" value="{{ current_user.doctor.phone or '+33 6 12 34 56 78' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-globe"></i> Réseaux professionnels</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="linkedin" class="form-label">LinkedIn</label>
+                                <input type="url" id="linkedin" name="linkedin" class="form-control" value="{{ current_user.doctor.linkedin or 'https://linkedin.com/in/docteur-exemple' }}">
+                            </div>
+                            <div class="form-group">
+                                <label for="website" class="form-label">Site web</label>
+                                <input type="url" id="website" name="website" class="form-control" value="{{ current_user.doctor.website or 'https://exemple-docteur.fr' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="window.location.href='{{ url_for('doctor.dashboard') }}'">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Disponibilités -->
+            <div id="availability" class="tab-content">
+                <form id="availability-form" method="POST" action="{{ url_for('doctor.profile') }}">
+                    <input type="hidden" name="form_type" value="availability">
+                    <input type="hidden" id="available_days" name="available_days" value="{{ current_user.doctor.available_days or '2,3,4' }}">
+                    <input type="hidden" id="available_hours" name="available_hours" value="{{ current_user.doctor.available_hours or '9-12,14-17' }}">
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-calendar-week"></i> Jours disponibles</h3>
+                        <div class="calendar-container">
+                            <div class="calendar-day" data-day="1">Lun</div>
+                            <div class="calendar-day" data-day="2">Mar</div>
+                            <div class="calendar-day" data-day="3">Mer</div>
+                            <div class="calendar-day" data-day="4">Jeu</div>
+                            <div class="calendar-day" data-day="5">Ven</div>
+                            <div class="calendar-day" data-day="6">Sam</div>
+                            <div class="calendar-day" data-day="7">Dim</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-clock"></i> Plages horaires</h3>
+                        <div class="time-slots">
+                            <div class="time-slot" data-slot="8-9">08:00 - 09:00</div>
+                            <div class="time-slot" data-slot="9-10">09:00 - 10:00</div>
+                            <div class="time-slot" data-slot="10-11">10:00 - 11:00</div>
+                            <div class="time-slot" data-slot="11-12">11:00 - 12:00</div>
+                            <div class="time-slot" data-slot="12-13">12:00 - 13:00</div>
+                            <div class="time-slot" data-slot="13-14">13:00 - 14:00</div>
+                            <div class="time-slot" data-slot="14-15">14:00 - 15:00</div>
+                            <div class="time-slot" data-slot="15-16">15:00 - 16:00</div>
+                            <div class="time-slot" data-slot="16-17">16:00 - 17:00</div>
+                            <div class="time-slot" data-slot="17-18">17:00 - 18:00</div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-video"></i> Disponibilité en visio</h3>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Activer ma disponibilité en visio</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="video_consultation" {% if current_user.doctor.video_consultation %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-sync"></i> Synchronisation des disponibilités</h3>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Créer automatiquement des créneaux de disponibilité</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="sync_availabilities" id="sync_availabilities" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-text mt-2">
+                            <i class="fas fa-info-circle"></i> Cette option va créer des créneaux de disponibilité spécifiques pour les 4 prochaines semaines en fonction des jours et heures sélectionnés ci-dessus. Les créneaux existants non réservés seront supprimés.
+                        </div>
+                        <div class="alert-info mt-3 p-3 rounded">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Important :</strong> Si vous rencontrez une erreur "database is locked", veuillez patienter quelques secondes et réessayer. Cette erreur peut survenir lorsque plusieurs opérations sont effectuées simultanément sur la base de données.
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ url_for('doctor.availability') }}" class="btn-secondary">
+                                <i class="fas fa-calendar-alt"></i> Gérer mes créneaux spécifiques
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="window.location.href='{{ url_for('doctor.dashboard') }}'">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Préférences & Sécurité -->
+            <div id="preferences" class="tab-content">
+                <form id="preferences-form" method="POST" action="{{ url_for('doctor.profile') }}">
+                    <input type="hidden" name="form_type" value="preferences">
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-bell"></i> Notifications</h3>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Recevoir des alertes par email</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="email_notifications" {% if current_user.doctor.email_notifications %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Recevoir des alertes par SMS</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="sms_notifications" {% if current_user.doctor.sms_notifications %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-container">
+                            <span class="toggle-label">Mode "Ne pas déranger" hors consultation</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" name="do_not_disturb" {% if current_user.doctor.do_not_disturb %}checked{% endif %}>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3 class="section-title"><i class="fas fa-lock"></i> Sécurité</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="current_password" class="form-label">Mot de passe actuel</label>
+                                <input type="password" id="current_password" name="current_password" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="new_password" class="form-label">Nouveau mot de passe</label>
+                                <input type="password" id="new_password" name="new_password" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label">Confirmer le mot de passe</label>
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" onclick="window.location.href='{{ url_for('doctor.dashboard') }}'">Annuler</button>
+                        <button type="submit" class="btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Diplômes & Documents -->
+            <div id="documents" class="tab-content">
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-file-medical"></i> Mes documents</h3>
+                    <div class="documents-list">
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="document-name">Diplôme de médecine.pdf</div>
+                            <div class="document-size">2.4 MB</div>
+                            <div class="document-actions">
+                                <span class="document-action"><i class="fas fa-eye"></i></span>
+                                <span class="document-action"><i class="fas fa-download"></i></span>
+                                <span class="document-action delete"><i class="fas fa-trash"></i></span>
+                            </div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="document-name">Certificat de spécialité.pdf</div>
+                            <div class="document-size">1.8 MB</div>
+                            <div class="document-actions">
+                                <span class="document-action"><i class="fas fa-eye"></i></span>
+                                <span class="document-action"><i class="fas fa-download"></i></span>
+                                <span class="document-action delete"><i class="fas fa-trash"></i></span>
+                            </div>
+                        </div>
+                        <div class="document-item">
+                            <div class="document-icon">
+                                <i class="fas fa-file-image"></i>
+                            </div>
+                            <div class="document-name">Attestation d'exercice.jpg</div>
+                            <div class="document-size">1.2 MB</div>
+                            <div class="document-actions">
+                                <span class="document-action"><i class="fas fa-eye"></i></span>
+                                <span class="document-action"><i class="fas fa-download"></i></span>
+                                <span class="document-action delete"><i class="fas fa-trash"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-upload"></i> Ajouter un document</h3>
+                    <div class="dropzone">
+                        <div class="dropzone-icon">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                        </div>
+                        <div class="dropzone-text">Glissez-déposez vos fichiers ici ou cliquez pour parcourir</div>
+                        <div class="dropzone-info">Formats acceptés : PDF, JPG, DOCX (Max 10 MB)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle sidebar
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('main-content-expanded');
+    });
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+
+    mobileMenuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-open');
+    });
+
+    // Profile tabs functionality
+    const profileTabs = document.querySelectorAll('.profile-tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    profileTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+
+            // Remove active class from all tabs and contents
+            profileTabs.forEach(t => t.classList.remove('active'));
+            tabContents.forEach(c => c.classList.remove('active'));
+
+            // Add active class to current tab and content
+            this.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Calendar day selection
+    const calendarDays = document.querySelectorAll('.calendar-day');
+    const availableDaysInput = document.getElementById('available_days');
+
+    // Fonction pour mettre à jour le champ caché des jours disponibles
+    function updateAvailableDays() {
+        const selectedDays = [];
+        document.querySelectorAll('.calendar-day.active').forEach(activeDay => {
+            selectedDays.push(activeDay.getAttribute('data-day'));
+        });
+        availableDaysInput.value = selectedDays.join(',');
+        console.log('Jours disponibles mis à jour:', availableDaysInput.value);
+    }
+
+    // Initialize calendar days from saved value
+    if (availableDaysInput) {
+        console.log('Valeur initiale des jours disponibles:', availableDaysInput.value);
+        const savedDays = availableDaysInput.value.split(',').filter(day => day.trim() !== '');
+        console.log('Jours sauvegardés:', savedDays);
+
+        calendarDays.forEach(day => {
+            const dayValue = day.getAttribute('data-day');
+            if (savedDays.includes(dayValue)) {
+                day.classList.add('active');
+                console.log('Jour activé:', dayValue);
+            }
+        });
+    }
+
+    calendarDays.forEach(day => {
+        day.addEventListener('click', function() {
+            const dayValue = this.getAttribute('data-day');
+            console.log('Jour cliqué:', dayValue);
+
+            this.classList.toggle('active');
+            console.log('Nouveau statut du jour:', this.classList.contains('active') ? 'actif' : 'inactif');
+
+            // Update hidden input with selected days
+            updateAvailableDays();
+        });
+    });
+
+    // Time slot selection
+    const timeSlots = document.querySelectorAll('.time-slot');
+    const availableHoursInput = document.getElementById('available_hours');
+
+    // Fonction pour mettre à jour le champ caché des heures disponibles
+    function updateAvailableHours() {
+        const selectedSlots = [];
+        document.querySelectorAll('.time-slot.active').forEach(activeSlot => {
+            selectedSlots.push(activeSlot.getAttribute('data-slot'));
+        });
+        availableHoursInput.value = selectedSlots.join(',');
+        console.log('Heures disponibles mises à jour:', availableHoursInput.value);
+    }
+
+    // Initialize time slots from saved value
+    if (availableHoursInput) {
+        console.log('Valeur initiale des heures disponibles:', availableHoursInput.value);
+        const savedHours = availableHoursInput.value.split(',').filter(hour => hour.trim() !== '');
+        console.log('Heures sauvegardées:', savedHours);
+
+        timeSlots.forEach(slot => {
+            const slotValue = slot.getAttribute('data-slot');
+            if (savedHours.includes(slotValue)) {
+                slot.classList.add('active');
+                console.log('Créneau activé:', slotValue);
+            }
+        });
+    }
+
+    timeSlots.forEach(slot => {
+        slot.addEventListener('click', function() {
+            const slotValue = this.getAttribute('data-slot');
+            console.log('Créneau cliqué:', slotValue);
+
+            this.classList.toggle('active');
+            console.log('Nouveau statut du créneau:', this.classList.contains('active') ? 'actif' : 'inactif');
+
+            // Update hidden input with selected time slots
+            updateAvailableHours();
+        });
+    });
+
+    // Avatar upload preview
+    const avatarUpload = document.getElementById('avatar-upload');
+    const profileAvatar = document.querySelector('.profile-avatar');
+
+    if (avatarUpload && profileAvatar) {
+        avatarUpload.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profileAvatar.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Form submission handling
+    const forms = document.querySelectorAll('form:not(#avatar-form)');
+
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            // Ne pas empêcher la soumission réelle du formulaire
+            // e.preventDefault();
+            // alert('Modifications enregistrées avec succès !');
+        });
+    });
+
+    // Document actions
+    const documentActions = document.querySelectorAll('.document-action');
+
+    documentActions.forEach(action => {
+        action.addEventListener('click', function() {
+            const icon = this.querySelector('i');
+
+            if (icon.classList.contains('fa-eye')) {
+                alert('Visualisation du document');
+            } else if (icon.classList.contains('fa-download')) {
+                alert('Téléchargement du document');
+            } else if (icon.classList.contains('fa-trash')) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce document ?')) {
+                    this.closest('.document-item').remove();
+                }
+            }
+        });
+    });
+
+    // Dropzone functionality
+    const dropzone = document.querySelector('.dropzone');
+
+    if (dropzone) {
+        dropzone.addEventListener('click', function() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.pdf,.jpg,.jpeg,.docx';
+            input.multiple = true;
+
+            input.onchange = function() {
+                if (this.files.length > 0) {
+                    alert(`${this.files.length} fichier(s) sélectionné(s) pour l'upload`);
+                }
+            };
+
+            input.click();
+        });
+    }
+
+    // Ajouter un gestionnaire d'événements pour le bouton de soumission du formulaire de disponibilité
+    const availabilityForm = document.getElementById('availability-form');
+    if (availabilityForm) {
+        availabilityForm.addEventListener('submit', function(e) {
+            // Vérifier les valeurs avant la soumission
+            const daysValue = document.getElementById('available_days').value;
+            const hoursValue = document.getElementById('available_hours').value;
+
+            console.log('Soumission du formulaire de disponibilité:');
+            console.log('- Jours disponibles:', daysValue);
+            console.log('- Heures disponibles:', hoursValue);
+
+            // Si les valeurs sont vides, empêcher la soumission
+            if (!daysValue || !hoursValue) {
+                e.preventDefault();
+                alert('Veuillez sélectionner au moins un jour et une plage horaire avant de soumettre le formulaire.');
+                return false;
+            }
+
+            // Sinon, laisser la soumission se poursuivre
+            return true;
+        });
+    }
+});
+</script>
+{% endblock %}

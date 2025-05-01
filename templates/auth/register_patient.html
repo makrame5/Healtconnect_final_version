@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+
+{% block title %}HealthConnect - Inscription Patient{% endblock %}
+
+{% block content %}
+<section class="register-patient">
+    <div class="container">
+        <div class="section-header">
+            <h2>Créer un compte Patient</h2>
+            <p>Remplissez le formulaire ci-dessous pour créer votre compte patient</p>
+        </div>
+
+        <div class="form-container">
+            <form id="patientRegistrationForm" class="multi-step-form">
+                <!-- Progress Bar -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="formProgress"></div>
+                    </div>
+                    <div class="steps">
+                        <div class="step active" data-step="1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Informations de base</div>
+                        </div>
+                        <div class="step" data-step="2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Informations personnelles</div>
+                        </div>
+                        <div class="step" data-step="3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Informations médicales</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 1: Basic Information -->
+                <div class="form-step active" data-step="1">
+                    <h3>Informations de base</h3>
+
+                    <div class="form-group">
+                        <label for="firstName">Prénom <span class="required">*</span></label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="lastName">Nom <span class="required">*</span></label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Adresse Email <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Mot de passe <span class="required">*</span></label>
+                        <input type="password" id="password" name="password" required minlength="8">
+                        <small>Le mot de passe doit contenir au moins 8 caractères</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmer le mot de passe <span class="required">*</span></label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+
+                    <div class="form-buttons">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline">Retour</a>
+                        <button type="button" class="btn btn-primary next-step">Continuer</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Personal Information -->
+                <div class="form-step" data-step="2">
+                    <h3>Informations personnelles</h3>
+
+                    <div class="form-group">
+                        <label for="birthDate">Date de naissance <span class="required">*</span></label>
+                        <input type="date" id="birthDate" name="birthDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Sexe <span class="required">*</span></label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="male" required>
+                                <span>Homme</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="gender" value="female">
+                                <span>Femme</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Téléphone <span class="required">*</span></label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Adresse <span class="required">*</span></label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="idNumber">Numéro CIN ou ID patient <span class="required">*</span></label>
+                        <input type="text" id="idNumber" name="idNumber" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="insurance">Assurance (optionnelle)</label>
+                        <select id="insurance" name="insurance">
+                            <option value="">Sélectionnez votre assurance</option>
+                            <option value="CNSS">CNSS</option>
+                            <option value="CNAM">CNAM</option>
+                            <option value="Assurance privée">Assurance privée</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-outline prev-step">Précédent</button>
+                        <button type="button" class="btn btn-primary next-step">Continuer</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Medical Information -->
+                <div class="form-step" data-step="3">
+                    <h3>Informations médicales</h3>
+
+                    <div class="form-group">
+                        <label for="bloodType">Groupe sanguin</label>
+                        <select id="bloodType" name="bloodType">
+                            <option value="">Sélectionnez votre groupe sanguin</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="allergies">Allergies connues</label>
+                        <textarea id="allergies" name="allergies" placeholder="Listez vos allergies, séparées par des virgules"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chronicDiseases">Maladies chroniques</label>
+                        <textarea id="chronicDiseases" name="chronicDiseases" placeholder="Listez vos maladies chroniques, séparées par des virgules"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="currentMedications">Médicaments actuels</label>
+                        <textarea id="currentMedications" name="currentMedications" placeholder="Listez vos médicaments actuels, séparés par des virgules"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyContactName">Personne à contacter en cas d'urgence</label>
+                        <input type="text" id="emergencyContactName" name="emergencyContactName" placeholder="Nom et prénom">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyContactPhone">Téléphone de la personne à contacter</label>
+                        <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="socialSecurityNumber">Numéro de sécurité sociale ou CNAM</label>
+                        <input type="text" id="socialSecurityNumber" name="socialSecurityNumber">
+                    </div>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn btn-outline prev-step">Précédent</button>
+                        <button type="submit" class="btn btn-primary">Créer mon compte</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-patient {
+        padding: 120px 0 80px;
+        background-color: var(--light-color);
+    }
+
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background-color: var(--white);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        padding: 40px;
+    }
+
+    .progress-container {
+        margin-bottom: 40px;
+    }
+
+    .progress-bar {
+        height: 6px;
+        background-color: #e9ecef;
+        border-radius: 3px;
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .progress {
+        position: absolute;
+        height: 100%;
+        background-color: var(--primary-color);
+        border-radius: 3px;
+        transition: width 0.3s ease;
+        width: 33.33%;
+    }
+
+    .steps {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .step {
+        text-align: center;
+        flex: 1;
+        position: relative;
+        opacity: 0.5;
+        transition: opacity 0.3s ease;
+    }
+
+    .step.active {
+        opacity: 1;
+    }
+
+    .step-number {
+        width: 30px;
+        height: 30px;
+        background-color: var(--primary-color);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+    }
+
+    .step-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .form-step {
+        display: none;
+    }
+
+    .form-step.active {
+        display: block;
+    }
+
+    .form-step h3 {
+        margin-bottom: 25px;
+        color: var(--dark-color);
+        font-size: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .required {
+        color: #dc3545;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="date"],
+    input[type="tel"],
+    select,
+    textarea {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+
+    textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    small {
+        display: block;
+        margin-top: 5px;
+        color: var(--text-light);
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 20px;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .radio-label input {
+        margin-right: 8px;
+    }
+
+    .form-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    @media (max-width: 768px) {
+        .form-container {
+            padding: 30px 20px;
+        }
+
+        .steps {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-number {
+            margin: 0;
+        }
+
+        .radio-group {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .form-buttons {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-buttons button {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('patientRegistrationForm');
+        const steps = document.querySelectorAll('.form-step');
+        const stepIndicators = document.querySelectorAll('.step');
+        const progress = document.getElementById('formProgress');
+        const nextButtons = document.querySelectorAll('.next-step');
+        const prevButtons = document.querySelectorAll('.prev-step');
+
+        let currentStep = 1;
+        const totalSteps = steps.length;
+
+        // Update progress bar
+        function updateProgress() {
+            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            progress.style.width = `${progressPercentage}%`;
+
+            // Update step indicators
+            stepIndicators.forEach((step, index) => {
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                } else {
+                    step.classList.remove('active');
+                }
+            });
+        }
+
+        // Show current step
+        function showStep(stepNumber) {
+            steps.forEach((step) => {
+                step.classList.remove('active');
+            });
+
+            document.querySelector(`.form-step[data-step="${stepNumber}"]`).classList.add('active');
+            currentStep = stepNumber;
+            updateProgress();
+        }
+
+        // Validate current step
+        function validateStep(stepNumber) {
+            const currentStepElement = document.querySelector(`.form-step[data-step="${stepNumber}"]`);
+            const requiredFields = currentStepElement.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach((field) => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.classList.add('invalid');
+                } else {
+                    field.classList.remove('invalid');
+                }
+            });
+
+            // Special validation for password confirmation
+            if (stepNumber === 1) {
+                const password = document.getElementById('password');
+                const confirmPassword = document.getElementById('confirmPassword');
+
+                if (password.value !== confirmPassword.value) {
+                    isValid = false;
+                    confirmPassword.classList.add('invalid');
+                    alert('Les mots de passe ne correspondent pas.');
+                }
+            }
+
+            return isValid;
+        }
+
+        // Next button click handler
+        nextButtons.forEach((button) => {
+            button.addEventListener('click', function() {
+                if (validateStep(currentStep)) {
+                    showStep(currentStep + 1);
+                }
+            });
+        });
+
+        // Previous button click handler
+        prevButtons.forEach((button) => {
+            button.addEventListener('click', function() {
+                showStep(currentStep - 1);
+            });
+        });
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!validateStep(currentStep)) {
+                return;
+            }
+
+            // Collect form data
+            const formData = new FormData(form);
+            const data = {};
+
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            // Send data to server
+            fetch('{{ url_for("auth.api_register_patient") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() if csrf_token else "" }}'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    window.location.href = '{{ url_for("auth.login") }}';
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
+            });
+        });
+
+        // Initialize
+        showStep(1);
+    });
+</script>
+{% endblock %}

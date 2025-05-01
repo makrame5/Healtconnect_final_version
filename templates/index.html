@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}HealthConnect - Votre plateforme de télémédecine{% endblock %}
+
+{% block content %}
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Votre santé. À portée de clic.</h2>
+                <h3>Partout, à tout moment.</h3>
+                <p>HealthConnect vous met en relation avec des professionnels de santé qualifiés pour des consultations en ligne sécurisées et efficaces.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('patient.dashboard') }}" class="btn btn-primary"><i class="fas fa-phone-alt"></i> Consulter un médecin maintenant </a>
+                    <a href="{{ url_for('doctor.dashboard') }}" class="btn btn-secondary"><i class="fas fa-video"></i> Gérer Ces Patient </a>
+                </div>
+                <div class="search-box">
+                    <input type="text" placeholder="Rechercher une spécialité, un symptôme...">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='images/doctor-patient.jpeg') }}" alt="Téléconsultation médicale">
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Nos fonctionnalités principales</h2>
+                <p>Découvrez comment HealthConnect révolutionne l'accès aux soins médicaux</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Intelligence Médicale IA</h3>
+                    <p>Notre système d'IA analyse vos symptômes pour vous orienter vers le bon spécialiste.</p>
+                    <a href="#" class="feature-link">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <h3>Vidéoconsultation</h3>
+                    <p>Consultez votre médecin en HD avec notre système de vidéo sécurisé et stable.</p>
+                    <a href="#" class="feature-link">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Chat Sécurisé</h3>
+                    <p>Échangez avec votre médecin via notre messagerie chiffrée et confidentielle.</p>
+                    <a href="#" class="feature-link">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <h3>Dossier Médical</h3>
+                    <p>Accédez à votre historique médical et partagez-le en toute sécurité avec vos médecins.</p>
+                    <a href="#" class="feature-link">En savoir plus <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Patient & Doctor Sections -->
+    <section class="user-sections">
+        <div class="container">
+            <div class="user-section patient-section">
+                <div class="user-content">
+                    <h2>Je suis un Patient</h2>
+                    <ul class="user-benefits">
+                        <li><i class="fas fa-check-circle"></i> Prendre RDV facilement</li>
+                        <li><i class="fas fa-check-circle"></i> Accéder à mes ordonnances</li>
+                        <li><i class="fas fa-check-circle"></i> Suivre mes traitements</li>
+                        <li><i class="fas fa-check-circle"></i> Espace sécurisé</li>
+                    </ul>
+                    <a href="{{ url_for('redirect_to_patient_space') }}" class="btn btn-primary">Espace Patient</a>
+                </div>
+                <div class="user-image">
+                    <img src="{{ url_for('static', filename='images/patient.png') }}" alt="Patient utilisant HealthConnect">
+                </div>
+            </div>
+            <div class="user-section doctor-section">
+                <div class="user-image">
+                    <img src="{{ url_for('static', filename='images/doctor.png') }}" alt="Médecin utilisant HealthConnect">
+                </div>
+                <div class="user-content">
+                    <h2>Je suis un Médecin</h2>
+                    <ul class="user-benefits">
+                        <li><i class="fas fa-check-circle"></i> Gérer mes patients</li>
+                        <li><i class="fas fa-check-circle"></i> Créer des prescriptions</li>
+                        <li><i class="fas fa-check-circle"></i> Lancer des appels vidéo</li>
+                        <li><i class="fas fa-check-circle"></i> Optimiser mon agenda</li>
+                    </ul>
+                    <a href="{{ url_for('redirect_to_doctor_space') }}" class="btn btn-secondary">Espace Médecin</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Partners & Testimonials -->
+    <section class="partners-testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2>Nos Partenaires Médicaux</h2>
+                <p>HealthConnect collabore avec des institutions médicales de confiance</p>
+            </div>
+            <div class="partners-logos">
+                <div class="partner-logo">
+                    <img src="{{ url_for('static', filename='images/partner1.png') }}" alt="Partenaire médical">
+                </div>
+                <div class="partner-logo">
+                    <img src="{{ url_for('static', filename='images/partner2.jpg') }}" alt="Partenaire médical">
+                </div>
+                <div class="partner-logo">
+                    <img src="{{ url_for('static', filename='images/partner3.png') }}" alt="Partenaire médical">
+                </div>
+                <div class="partner-logo">
+                    <img src="{{ url_for('static', filename='images/partner4.png') }}" alt="Partenaire médical">
+                </div>
+            </div>
+
+            <div class="testimonials">
+                <div class="section-header">
+                    <h2>Ce que disent nos utilisateurs</h2>
+                </div>
+                <div class="testimonial-carousel">
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"Grâce à HealthConnect, j'ai consulté un spécialiste en moins de 30 minutes efficacement, sans probléme !  "</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="{{ url_for('static', filename='images/avatar1.jpg') }}" alt="Témoignage utilisateur">
+                            </div>
+                            <div class="author-info">
+                                <h4>Boulla Noura</h4>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="testimonial-content">
+                            <p>"En tant que médecin, HealthConnect me permet de suivre mes patients efficacement, même à distance."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <img src="{{ url_for('static', filename='images/avatar2.jpg') }}" alt="Témoignage médecin">
+                            </div>
+                            <div class="author-info">
+                                <h4>Dr. ENNAJI Mohammed</h4>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+{% endblock %}

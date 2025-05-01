@@ -1,0 +1,340 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Tableau de bord Médecin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+{% include 'doctor/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">CLINIC</div>
+            <a href="{{ url_for('doctor.dashboard') }}" class="menu-item active">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="{{ url_for('doctor.patients') }}" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span class="menu-text">Patients</span>
+            </a>
+            <a href="{{ url_for('doctor.virtual_office') }}" class="menu-item">
+                <i class="fas fa-laptop-medical"></i>
+                <span class="menu-text">Cabinet Virtuel</span>
+            </a>
+            <a href="{{ url_for('doctor.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Rendez-vous</span>
+            </a>
+            <a href="{{ url_for('doctor.availability') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Disponibilités</span>
+            </a>
+
+            <div class="menu-category">INTERACTION</div>
+            <a href="{{ url_for('doctor.smart_agenda') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Agenda Intelligent</span>
+            </a>
+            <a href="{{ url_for('doctor.waiting_room') }}" class="menu-item">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="menu-text">File d'Attente</span>
+            </a>
+
+            <div class="menu-category">RÉSEAU COLLABORATIF</div>
+            <a href="{{ url_for('doctor.medical_network') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Réseau Médical</span>
+            </a>
+            <a href="{{ url_for('doctor.hospital_references') }}" class="menu-item">
+                <i class="fas fa-hospital"></i>
+                <span class="menu-text">Références Hospitalières</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('doctor.settings') }}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Tableau de bord Médecin</h1>
+            <p class="page-subtitle">Bienvenue, Dr. {{ current_user.first_name }} {{ current_user.last_name }}</p>
+        </div>
+
+        <!-- Widgets Grid -->
+        <div class="widgets-grid">
+            <!-- Widget: Patients en attente -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Patients en attente</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-user-clock"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    {% if pending_appointments %}
+                        <div class="appointment-list">
+                            {% for appointment in pending_appointments %}
+                                <div class="appointment-item">
+                                    <div class="patient-info">
+                                        <div class="patient-avatar">
+                                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Patient">
+                                        </div>
+                                        <div class="patient-details">
+                                            <h4>{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</h4>
+                                            <div class="appointment-time">
+                                                <i class="far fa-clock"></i>
+                                                <span>{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="appointment-actions">
+                                        <a href="{{ url_for('doctor.appointment_action', appointment_id=appointment.id, action='accept') }}" class="btn-accept">
+                                            <i class="fas fa-check"></i> Accepter
+                                        </a>
+                                        <a href="{{ url_for('doctor.appointment_action', appointment_id=appointment.id, action='reject') }}" class="btn-reject">
+                                            <i class="fas fa-times"></i> Refuser
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-check-circle"></i>
+                            <p>Aucun patient en attente</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="widget-footer">
+                    <span>{{ pending_appointments|length }} demande(s) en attente</span>
+                    <a href="{{ url_for('doctor.appointments') }}" class="widget-link">Voir tous <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Widget: Prochains rendez-vous -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Prochains rendez-vous</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    {% if upcoming_appointments %}
+                        <div class="appointment-list">
+                            {% for appointment in upcoming_appointments %}
+                                <div class="appointment-item">
+                                    <div class="patient-info">
+                                        <div class="patient-avatar">
+                                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Patient">
+                                        </div>
+                                        <div class="patient-details">
+                                            <h4>{{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</h4>
+                                            <div class="appointment-time">
+                                                <i class="far fa-clock"></i>
+                                                <span>{{ appointment.date_time.strftime('%d/%m/%Y à %H:%M') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="appointment-actions">
+                                        <a href="{{ url_for('doctor.consultation', appointment_id=appointment.id) }}" class="btn-join">
+                                            <i class="fas fa-video"></i> Rejoindre
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-check"></i>
+                            <p>Aucun rendez-vous à venir</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="widget-footer">
+                    <span>{{ upcoming_appointments|length }} rendez-vous à venir</span>
+                    <a href="{{ url_for('doctor.appointments') }}" class="widget-link">Voir tous <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Widget: Statistiques -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Statistiques</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value">24</span>
+                                <span class="stat-label">Patients actifs</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value">8</span>
+                                <span class="stat-label">Consultations cette semaine</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-file-medical"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value">12</span>
+                                <span class="stat-label">Prescriptions émises</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value">4.8</span>
+                                <span class="stat-label">Note moyenne</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-footer">
+                    <span>Dernière mise à jour: Aujourd'hui</span>
+                    <a href="#" class="widget-link">Détails <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+
+            <!-- Widget: Activité récente -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Activité récente</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                </div>
+
+                <div class="widget-content">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p class="activity-text">Nouveau patient: <strong>Martin Dupont</strong></p>
+                                <span class="activity-time">Il y a 2 heures</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-file-prescription"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p class="activity-text">Prescription émise pour <strong>Sophie Martin</strong></p>
+                                <span class="activity-time">Hier, 15:30</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-calendar-plus"></i>
+                            </div>
+                            <div class="activity-details">
+                                <p class="activity-text">Rendez-vous confirmé avec <strong>Jean Dujardin</strong></p>
+                                <span class="activity-time">Hier, 10:15</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget-footer">
+                    <span>3 activités récentes</span>
+                    <a href="#" class="widget-link">Voir toutes <i class="fas fa-chevron-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Socket.IO -->
+<script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+<!-- Script de notifications -->
+<script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle sidebar
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('main-content-expanded');
+    });
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+
+    mobileMenuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-open');
+    });
+
+    // Gestion du statut du médecin
+    const statusIndicator = document.querySelector('.status-indicator');
+    const statusText = document.querySelector('.status-text');
+    const doctorStatus = document.querySelector('.doctor-status');
+
+    doctorStatus.addEventListener('click', function() {
+        if (statusIndicator.classList.contains('status-online')) {
+            statusIndicator.classList.remove('status-online');
+            statusIndicator.classList.add('status-busy');
+            statusText.textContent = 'Occupé';
+        } else if (statusIndicator.classList.contains('status-busy')) {
+            statusIndicator.classList.remove('status-busy');
+            statusIndicator.classList.add('status-offline');
+            statusText.textContent = 'Hors ligne';
+        } else {
+            statusIndicator.classList.remove('status-offline');
+            statusIndicator.classList.add('status-online');
+            statusText.textContent = 'En ligne';
+        }
+    });
+});
+</script>
+{% endblock %}

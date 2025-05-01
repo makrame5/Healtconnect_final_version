@@ -1,0 +1,428 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Patients{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/dashboard.css') }}">
+<style>
+    .patients-tabs {
+        display: flex;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 20px;
+    }
+
+    .tab-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text-light);
+        border-bottom: 3px solid transparent;
+        transition: var(--transition);
+    }
+
+    .tab-item.active {
+        color: var(--primary-color);
+        border-bottom-color: var(--primary-color);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .patients-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .patients-table th {
+        text-align: left;
+        padding: 12px 15px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+
+    .patients-table td {
+        padding: 12px 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .patients-table tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+
+    .patient-row {
+        cursor: pointer;
+    }
+
+    .patient-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 10px;
+    }
+
+    .patient-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .patient-name {
+        font-weight: 500;
+        color: var(--text-color);
+    }
+
+    .patient-email {
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background-color: rgba(88, 214, 141, 0.2);
+        color: #27ae60;
+    }
+
+    .status-pending {
+        background-color: rgba(243, 156, 18, 0.2);
+        color: #f39c12;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        border: none;
+        transition: var(--transition);
+    }
+
+    .btn-view {
+        background-color: rgba(36, 113, 163, 0.1);
+        color: var(--primary-color);
+    }
+
+    .btn-view:hover {
+        background-color: rgba(36, 113, 163, 0.2);
+    }
+
+    .btn-accept {
+        background-color: rgba(88, 214, 141, 0.1);
+        color: #27ae60;
+    }
+
+    .btn-accept:hover {
+        background-color: rgba(88, 214, 141, 0.2);
+    }
+
+    .btn-reject {
+        background-color: rgba(231, 76, 60, 0.1);
+        color: #e74c3c;
+    }
+
+    .btn-reject:hover {
+        background-color: rgba(231, 76, 60, 0.2);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 0;
+        color: var(--text-light);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        color: #e0e0e0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'doctor/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">CLINIC</div>
+            <a href="{{ url_for('doctor.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="{{ url_for('doctor.patients') }}" class="menu-item active">
+                <i class="fas fa-user-injured"></i>
+                <span class="menu-text">Patients</span>
+            </a>
+            <a href="{{ url_for('doctor.virtual_office') }}" class="menu-item">
+                <i class="fas fa-laptop-medical"></i>
+                <span class="menu-text">Cabinet Virtuel</span>
+            </a>
+            <a href="{{ url_for('doctor.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Rendez-vous</span>
+            </a>
+            <a href="{{ url_for('doctor.availability') }}" class="menu-item">
+                <i class="fas fa-clock"></i>
+                <span class="menu-text">Disponibilités</span>
+            </a>
+
+            <div class="menu-category">INTERACTION</div>
+            <a href="{{ url_for('doctor.smart_agenda') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Agenda Intelligent</span>
+            </a>
+            <a href="{{ url_for('doctor.waiting_room') }}" class="menu-item">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="menu-text">File d'Attente</span>
+            </a>
+
+            <div class="menu-category">RÉSEAU COLLABORATIF</div>
+            <a href="{{ url_for('doctor.medical_network') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Réseau Médical</span>
+            </a>
+            <a href="{{ url_for('doctor.hospital_references') }}" class="menu-item">
+                <i class="fas fa-hospital"></i>
+                <span class="menu-text">Références Hospitalières</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('doctor.settings') }}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Gestion des Patients</h1>
+            <p class="page-subtitle">Consultez et gérez vos patients</p>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="patients-tabs" style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex;">
+                    <div class="tab-item active" data-tab="active-patients">Patients Actifs</div>
+                    <div class="tab-item" data-tab="pending-patients">Demandes en Attente</div>
+                </div>
+                <a href="{{ url_for('doctor.export_patients_csv') }}" class="btn-action" style="font-size: 0.85rem; background-color: #3498db; color: white; margin-right: 10px;">
+                    <i class="fas fa-file-csv"></i> Exporter en CSV
+                </a>
+            </div>
+
+            <div id="active-patients" class="tab-content active">
+                {% if active_patients %}
+                <table class="patients-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Dernière visite</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in active_patients %}
+                        <tr class="patient-row" data-patient-id="{{ patient.id }}">
+                            <td>
+                                <div class="patient-info">
+                                    <div class="patient-avatar">
+                                        {% if patient.profile_picture %}
+                                            <img src="{{ url_for('static', filename=patient.profile_picture) }}" alt="Patient">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Patient">
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="patient-name">{{ patient.user.first_name }} {{ patient.user.last_name }}</div>
+                                        <div class="patient-email">{{ patient.user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if patient.last_visit %}
+                                    {{ patient.last_visit.strftime('%d/%m/%Y %H:%M') }}
+                                {% else %}
+                                    Jamais
+                                {% endif %}
+                            </td>
+                            <td><span class="status-badge status-active">Actif</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('doctor.patient_details', patient_id=patient.id) }}" class="btn-action btn-view">
+                                        <i class="fas fa-eye"></i> Voir
+                                    </a>
+                                    <a href="{{ url_for('doctor.schedule_appointment', patient_id=patient.id) }}" class="btn-action btn-accept">
+                                        <i class="fas fa-calendar-plus"></i> RDV
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-user-friends"></i>
+                    <p>Vous n'avez pas encore de patients actifs</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div id="pending-patients" class="tab-content">
+                {% if pending_patients %}
+                <table class="patients-table">
+                    <thead>
+                        <tr>
+                            <th>Patient</th>
+                            <th>Date de demande</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in pending_patients %}
+                        <tr class="patient-row" data-patient-id="{{ patient.id }}">
+                            <td>
+                                <div class="patient-info">
+                                    <div class="patient-avatar">
+                                        {% if patient.profile_picture %}
+                                            <img src="{{ url_for('static', filename=patient.profile_picture) }}" alt="Patient">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Patient">
+                                        {% endif %}
+                                    </div>
+                                    <div>
+                                        <div class="patient-name">{{ patient.user.first_name }} {{ patient.user.last_name }}</div>
+                                        <div class="patient-email">{{ patient.user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if patient.request_date %}
+                                    {{ patient.request_date.strftime('%d/%m/%Y %H:%M') }}
+                                {% else %}
+                                    Inconnue
+                                {% endif %}
+                            </td>
+                            <td><span class="status-badge status-pending">En attente</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <a href="{{ url_for('doctor.accept_patient', patient_id=patient.id) }}" class="btn-action btn-accept">
+                                        <i class="fas fa-check"></i> Accepter
+                                    </a>
+                                    <a href="{{ url_for('doctor.reject_patient', patient_id=patient.id) }}" class="btn-action btn-reject">
+                                        <i class="fas fa-times"></i> Refuser
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Aucune demande de patient en attente</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle sidebar
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('main-content-expanded');
+    });
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+
+    mobileMenuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-open');
+    });
+
+    // Tabs functionality
+    const tabItems = document.querySelectorAll('.tab-item');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+
+            // Remove active class from all tabs and contents
+            tabItems.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add active class to current tab and content
+            this.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Patient row click
+    const patientRows = document.querySelectorAll('.patient-row');
+
+    patientRows.forEach(row => {
+        row.addEventListener('click', function(e) {
+            // Prevent navigation if clicking on action buttons
+            if (e.target.closest('.action-buttons')) {
+                return;
+            }
+
+            const patientId = this.getAttribute('data-patient-id');
+            window.location.href = `/doctor/patient/${patientId}`;
+        });
+    });
+});
+</script>
+{% endblock %}

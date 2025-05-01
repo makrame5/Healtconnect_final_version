@@ -1,0 +1,77 @@
+<!-- Topbar (Header fixe) -->
+<div class="topbar">
+    <div class="topbar-logo">
+        <a href="{{ url_for('doctor.dashboard') }}" class="logo-link">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="HealthConnect Logo">
+            <span>HealthConnect</span>
+        </a>
+    </div>
+
+    <div class="topbar-search">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="Rechercher un patient...">
+    </div>
+
+    <div class="topbar-actions">
+        <!-- Statut du médecin -->
+        <div class="doctor-status">
+            <span class="status-indicator status-online"></span>
+            <span class="status-text">En ligne</span>
+        </div>
+
+        <!-- Messagerie -->
+        <div class="topbar-messages">
+            <i class="fas fa-comment-alt"></i>
+            <span class="messages-badge">5</span>
+        </div>
+
+        <!-- Notifications -->
+        <div class="topbar-notification" id="notification-toggle">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">0</span>
+            
+            <!-- Dropdown Notifications -->
+            <div class="notification-dropdown" id="notification-dropdown">
+                <div class="notification-header">
+                    <div class="notification-title">Notifications</div>
+                    <div class="notification-actions">Tout marquer comme lu</div>
+                </div>
+                
+                <div class="notification-list">
+                    <!-- Les notifications seront ajoutées ici dynamiquement -->
+                </div>
+                
+                <div class="notification-footer">
+                    <a href="#">Voir toutes les notifications</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profil médecin simplifié -->
+        <div class="doctor-profile-simple">
+            <!-- Lien direct vers le profil -->
+            <a href="{{ url_for('doctor.profile') }}" class="profile-link">
+                <span class="doctor-name">Dr. {{ current_user.first_name }} {{ current_user.last_name }}</span>
+            </a>
+
+            <!-- Avatar avec lien direct -->
+            <a href="{{ url_for('doctor.profile') }}" class="avatar-link">
+                {% if current_user.doctor.profile_picture %}
+                    <img src="{{ url_for('static', filename=current_user.doctor.profile_picture.replace('\\', '/')) }}" alt="Avatar" class="doctor-avatar-img">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Avatar" class="doctor-avatar-img">
+                {% endif %}
+            </a>
+
+            <!-- Bouton de déconnexion direct -->
+            <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Bouton menu mobile -->
+    <button id="mobile-menu-toggle" class="d-md-none">
+        <i class="fas fa-bars"></i>
+    </button>
+</div>

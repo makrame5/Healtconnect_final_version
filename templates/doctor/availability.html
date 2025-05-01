@@ -1,0 +1,358 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Gestion des disponibilités{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/availability.css') }}">
+{% endblock %}
+
+{% block content %}
+{% include 'doctor/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">CLINIC</div>
+            <a href="{{ url_for('doctor.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="{{ url_for('doctor.patients') }}" class="menu-item">
+                <i class="fas fa-user-injured"></i>
+                <span class="menu-text">Patients</span>
+            </a>
+            <a href="{{ url_for('doctor.virtual_office') }}" class="menu-item">
+                <i class="fas fa-laptop-medical"></i>
+                <span class="menu-text">Cabinet Virtuel</span>
+            </a>
+            <a href="{{ url_for('doctor.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Rendez-vous</span>
+            </a>
+            <a href="{{ url_for('doctor.availability') }}" class="menu-item active">
+                <i class="fas fa-clock"></i>
+                <span class="menu-text">Disponibilités</span>
+            </a>
+
+            <div class="menu-category">INTERACTION</div>
+            <a href="{{ url_for('doctor.smart_agenda') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Agenda Intelligent</span>
+            </a>
+            <a href="{{ url_for('doctor.waiting_room') }}" class="menu-item">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="menu-text">File d'Attente</span>
+            </a>
+
+            <div class="menu-category">RÉSEAU COLLABORATIF</div>
+            <a href="{{ url_for('doctor.medical_network') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Réseau Médical</span>
+            </a>
+            <a href="{{ url_for('doctor.hospital_references') }}" class="menu-item">
+                <i class="fas fa-hospital"></i>
+                <span class="menu-text">Références Hospitalières</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('doctor.profile') }}" class="menu-item">
+                <i class="fas fa-user-circle"></i>
+                <span class="menu-text">Mon Profil</span>
+            </a>
+            <a href="{{ url_for('doctor.settings') }}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Gestion des disponibilités</h1>
+            <p class="page-subtitle">Définissez vos créneaux horaires disponibles pour les téléconsultations</p>
+        </div>
+
+        <!-- Contenu principal -->
+        <div class="content-container">
+            <!-- Formulaire d'ajout de disponibilité -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Ajouter un créneau de disponibilité</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-plus-circle"></i>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <form method="POST" action="{{ url_for('doctor.availability') }}" class="availability-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="date" class="form-label">Date</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <input type="date" class="form-control" id="date" name="date" required min="{{ today }}">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="start_time" class="form-label">Heure de début</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-clock"></i>
+                                    <input type="time" class="form-control" id="start_time" name="start_time" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="end_time" class="form-label">Heure de fin</label>
+                                <div class="input-with-icon">
+                                    <i class="fas fa-clock"></i>
+                                    <input type="time" class="form-control" id="end_time" name="end_time" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-plus"></i> Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Liste des disponibilités -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Mes créneaux disponibles</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    {% if availabilities %}
+                        <div class="availability-table-container">
+                            <div class="availability-filters">
+                                <button class="filter-btn active" data-filter="all">Tous</button>
+                                <button class="filter-btn" data-filter="available">Disponibles</button>
+                                <button class="filter-btn" data-filter="booked">Réservés</button>
+                            </div>
+
+                            <div class="availability-info">
+                                <div class="info-item">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Les créneaux déjà réservés ne peuvent pas être supprimés.</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Si vous tentez d'ajouter un créneau déjà existant, un message vous en informera.</span>
+                                </div>
+                            </div>
+
+                            <table class="availability-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Jour</th>
+                                        <th>Heure de début</th>
+                                        <th>Heure de fin</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for availability in availabilities %}
+                                        <tr class="availability-row" data-status="{{ availability.status }}">
+                                            <td>{{ availability.date.strftime('%d/%m/%Y') }}</td>
+                                            <td>{{ availability.date.strftime('%A')|capitalize }}</td>
+                                            <td>{{ availability.start_time.strftime('%H:%M') }}</td>
+                                            <td>{{ availability.end_time.strftime('%H:%M') }}</td>
+                                            <td>
+                                                {% if availability.status == 'available' %}
+                                                    <span class="status-badge status-available">Disponible</span>
+                                                {% elif availability.status == 'booked' %}
+                                                    <span class="status-badge status-booked">Réservé</span>
+                                                {% else %}
+                                                    <span class="status-badge status-unavailable">Indisponible</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if availability.status == 'available' %}
+                                                    <a href="{{ url_for('doctor.delete_availability', availability_id=availability.id) }}" class="action-btn delete-btn" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce créneau ?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                {% else %}
+                                                    <button class="action-btn locked-btn" disabled title="Ce créneau est réservé et ne peut pas être supprimé">
+                                                        <i class="fas fa-lock"></i>
+                                                    </button>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-calendar-times"></i>
+                            </div>
+                            <h4 class="empty-state-title">Aucun créneau disponible</h4>
+                            <p class="empty-state-description">
+                                Vous n'avez pas encore défini de créneaux de disponibilité. Utilisez le formulaire ci-dessus pour ajouter vos premiers créneaux.
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Conseils -->
+            <div class="widget">
+                <div class="widget-header">
+                    <h3 class="widget-title">Conseils pour la gestion des disponibilités</h3>
+                    <div class="widget-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                </div>
+                <div class="widget-content">
+                    <div class="tips-container">
+                        <div class="tip-item">
+                            <div class="tip-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <div class="tip-content">
+                                <h4 class="tip-title">Régularité</h4>
+                                <p class="tip-description">
+                                    Définissez des créneaux réguliers pour faciliter la prise de rendez-vous par vos patients.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-icon">
+                                <i class="fas fa-coffee"></i>
+                            </div>
+                            <div class="tip-content">
+                                <h4 class="tip-title">Pauses</h4>
+                                <p class="tip-description">
+                                    Prévoyez des pauses entre vos consultations pour vous permettre de prendre des notes et de vous préparer.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+                            <div class="tip-content">
+                                <h4 class="tip-title">Créneaux réservés</h4>
+                                <p class="tip-description">
+                                    Les créneaux réservés ne peuvent pas être supprimés. Contactez le patient pour reporter le rendez-vous si nécessaire.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="tip-content">
+                                <h4 class="tip-title">Notifications</h4>
+                                <p class="tip-description">
+                                    Vous recevrez une notification lorsqu'un patient réservera un de vos créneaux.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle sidebar
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-collapsed');
+                mainContent.classList.toggle('main-content-expanded');
+            });
+        }
+
+        // Mobile menu toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+
+        if (mobileMenuToggle) {
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('sidebar-open');
+            });
+        }
+
+        // Définir la date minimale à aujourd'hui
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('date').setAttribute('min', today);
+
+        // Pré-remplir avec la date d'aujourd'hui
+        document.getElementById('date').value = today;
+
+        // Gestion des filtres de disponibilité
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const availabilityRows = document.querySelectorAll('.availability-row');
+
+        if (filterButtons.length > 0) {
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Retirer la classe active de tous les boutons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+
+                    // Ajouter la classe active au bouton cliqué
+                    this.classList.add('active');
+
+                    // Récupérer le filtre
+                    const filter = this.getAttribute('data-filter');
+
+                    // Appliquer le filtre
+                    availabilityRows.forEach(row => {
+                        const status = row.getAttribute('data-status');
+
+                        if (filter === 'all' || status === filter) {
+                            row.classList.remove('hidden');
+                        } else {
+                            row.classList.add('hidden');
+                        }
+                    });
+                });
+            });
+        }
+
+        // Validation du formulaire
+        const availabilityForm = document.querySelector('.availability-form');
+
+        if (availabilityForm) {
+            availabilityForm.addEventListener('submit', function(event) {
+                const startTime = document.getElementById('start_time').value;
+                const endTime = document.getElementById('end_time').value;
+
+                if (startTime >= endTime) {
+                    event.preventDefault();
+                    alert('L\'heure de fin doit être après l\'heure de début.');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

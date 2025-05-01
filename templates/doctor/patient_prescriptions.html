@@ -1,0 +1,510 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Prescriptions & Notes du Patient{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/doctor/dashboard.css') }}">
+<style>
+    .prescriptions-container {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i {
+        color: var(--primary-color);
+    }
+
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+    }
+
+    .btn-action i {
+        margin-right: 8px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #1a5276;
+    }
+
+    .btn-secondary {
+        background-color: #f0f0f0;
+        color: var(--text-color);
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e0e0e0;
+    }
+
+    .prescription-card, .note-card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .prescription-header, .note-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .prescription-title, .note-title {
+        font-weight: 600;
+        color: var(--text-color);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .prescription-title i, .note-title i {
+        color: var(--primary-color);
+    }
+
+    .prescription-date, .note-date {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .prescription-content, .note-content {
+        white-space: pre-wrap;
+        line-height: 1.6;
+        color: var(--text-color);
+    }
+
+    .prescription-actions, .note-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 30px;
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #e0e0e0;
+        margin-bottom: 15px;
+    }
+
+    .empty-state p {
+        color: var(--text-light);
+        margin-bottom: 15px;
+    }
+
+    .patient-info {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+    }
+
+    .patient-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .patient-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .patient-details {
+        flex: 1;
+    }
+
+    .patient-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-color);
+        margin-bottom: 5px;
+    }
+
+    .patient-meta {
+        display: flex;
+        gap: 15px;
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .patient-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .patient-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .tab-container {
+        margin-bottom: 30px;
+    }
+
+    .tab-header {
+        display: flex;
+        background-color: var(--white);
+        border-radius: var(--border-radius) var(--border-radius) 0 0;
+        overflow: hidden;
+    }
+
+    .tab-item {
+        padding: 15px 20px;
+        font-weight: 500;
+        color: var(--text-light);
+        cursor: pointer;
+        flex: 1;
+        text-align: center;
+        border-bottom: 3px solid transparent;
+        transition: var(--transition);
+    }
+
+    .tab-item.active {
+        color: var(--primary-color);
+        background-color: rgba(52, 152, 219, 0.05);
+        border-bottom-color: var(--primary-color);
+    }
+
+    .tab-content {
+        background-color: var(--white);
+        border-radius: 0 0 var(--border-radius) var(--border-radius);
+        padding: 20px;
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    @media print {
+        .topbar, .sidebar, .prescription-actions, .note-actions, .page-header, .patient-actions, .tab-header {
+            display: none !important;
+        }
+
+        .main-content {
+            margin-left: 0 !important;
+            padding: 0 !important;
+        }
+
+        .tab-content {
+            display: block !important;
+            box-shadow: none;
+            border: none;
+            padding: 0;
+        }
+
+        .prescription-card, .note-card {
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
+            break-inside: avoid;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'doctor/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Menu</span>
+            <button id="sidebar-toggle" class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-menu">
+            <div class="menu-category">CLINIC</div>
+            <a href="{{ url_for('doctor.dashboard') }}" class="menu-item">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Accueil</span>
+            </a>
+            <a href="{{ url_for('doctor.patients') }}" class="menu-item active">
+                <i class="fas fa-user-injured"></i>
+                <span class="menu-text">Patients</span>
+            </a>
+            <a href="{{ url_for('doctor.virtual_office') }}" class="menu-item">
+                <i class="fas fa-laptop-medical"></i>
+                <span class="menu-text">Cabinet Virtuel</span>
+            </a>
+            <a href="{{ url_for('doctor.appointments') }}" class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span class="menu-text">Rendez-vous</span>
+            </a>
+
+            <div class="menu-category">INTERACTION</div>
+            <a href="{{ url_for('doctor.smart_agenda') }}" class="menu-item">
+                <i class="fas fa-calendar-check"></i>
+                <span class="menu-text">Agenda Intelligent</span>
+            </a>
+            <a href="{{ url_for('doctor.waiting_room') }}" class="menu-item">
+                <i class="fas fa-hourglass-half"></i>
+                <span class="menu-text">File d'Attente</span>
+            </a>
+
+            <div class="menu-category">RÉSEAU COLLABORATIF</div>
+            <a href="{{ url_for('doctor.medical_network') }}" class="menu-item">
+                <i class="fas fa-user-md"></i>
+                <span class="menu-text">Réseau Médical</span>
+            </a>
+            <a href="{{ url_for('doctor.hospital_references') }}" class="menu-item">
+                <i class="fas fa-hospital"></i>
+                <span class="menu-text">Références Hospitalières</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <a href="{{ url_for('doctor.settings') }}" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span class="menu-text">Paramètres</span>
+            </a>
+            <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-text">Déconnexion</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Prescriptions & Notes</h1>
+            <p class="page-subtitle">Gérez les prescriptions et notes pour ce patient</p>
+        </div>
+
+        <div class="dashboard-content">
+            <div class="patient-info">
+                <div class="patient-avatar">
+                    {% if patient.profile_picture %}
+                    <img src="{{ url_for('static', filename=patient.profile_picture.replace('\\', '/')) }}" alt="Patient">
+                    {% else %}
+                    <img src="{{ url_for('static', filename='images/default-avatar.png') }}" alt="Patient">
+                    {% endif %}
+                </div>
+                <div class="patient-details">
+                    <div class="patient-name">{{ patient.user.first_name }} {{ patient.user.last_name }}</div>
+                    <div class="patient-meta">
+                        <div class="patient-meta-item">
+                            <i class="fas fa-birthday-cake"></i>
+                            <span>{{ patient.birth_date.strftime('%d/%m/%Y') if patient.birth_date else 'Non renseigné' }}</span>
+                        </div>
+                        <div class="patient-meta-item">
+                            <i class="fas fa-venus-mars"></i>
+                            <span>{{ patient.gender or 'Non renseigné' }}</span>
+                        </div>
+                        <div class="patient-meta-item">
+                            <i class="fas fa-tint"></i>
+                            <span>{{ patient.blood_type or 'Non renseigné' }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="patient-actions">
+                    <a href="{{ url_for('doctor.patient_details', patient_id=patient.id) }}" class="btn-action btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Retour au dossier
+                    </a>
+                    <button onclick="window.print()" class="btn-action btn-primary">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                </div>
+            </div>
+
+            <div class="tab-container">
+                <div class="tab-header">
+                    <div class="tab-item active" data-tab="prescriptions">
+                        <i class="fas fa-prescription"></i> Prescriptions
+                    </div>
+                    <div class="tab-item" data-tab="notes">
+                        <i class="fas fa-sticky-note"></i> Notes de consultation
+                    </div>
+                </div>
+
+                <div id="prescriptions" class="tab-content active">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-prescription"></i> Prescriptions
+                        </div>
+                        <a href="{{ url_for('doctor.new_prescription', patient_id=patient.id) }}" class="btn-action btn-primary">
+                            <i class="fas fa-plus"></i> Nouvelle prescription
+                        </a>
+                    </div>
+
+                    {% if prescriptions %}
+                    <div class="prescriptions-container">
+                        {% for prescription in prescriptions %}
+                        <div class="prescription-card">
+                            <div class="prescription-header">
+                                <div class="prescription-title">
+                                    <i class="fas fa-prescription"></i>
+                                    Prescription du {{ prescription.created_at.strftime('%d/%m/%Y') }}
+                                </div>
+                                <div class="prescription-date">
+                                    {{ prescription.created_at.strftime('%H:%M') }}
+                                </div>
+                            </div>
+                            <div class="prescription-content">
+                                {{ prescription.content }}
+                            </div>
+                            <div class="prescription-actions">
+                                <a href="{{ url_for('doctor.edit_prescription', prescription_id=prescription.id) }}" class="btn-action btn-secondary btn-sm">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                                <a href="{{ url_for('doctor.delete_prescription', prescription_id=prescription.id) }}" class="btn-action btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette prescription ?');">
+                                    <i class="fas fa-trash"></i> Supprimer
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-prescription"></i>
+                        <p>Aucune prescription n'a été émise pour ce patient.</p>
+                        <a href="{{ url_for('doctor.new_prescription', patient_id=patient.id) }}" class="btn-action btn-primary">
+                            <i class="fas fa-plus"></i> Créer une prescription
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div id="notes" class="tab-content">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-sticky-note"></i> Notes de consultation
+                        </div>
+                    </div>
+
+                    {% if appointments_with_notes %}
+                    <div class="notes-container">
+                        {% for appointment in appointments_with_notes %}
+                        <div class="note-card">
+                            <div class="note-header">
+                                <div class="note-title">
+                                    <i class="fas fa-sticky-note"></i>
+                                    Consultation du {{ appointment.date_time.strftime('%d/%m/%Y') }}
+                                </div>
+                                <div class="note-date">
+                                    {{ appointment.date_time.strftime('%H:%M') }}
+                                </div>
+                            </div>
+                            <div class="note-content">
+                                {{ appointment.notes }}
+                            </div>
+                            <div class="note-actions">
+                                <a href="{{ url_for('doctor.edit_notes', appointment_id=appointment.id) }}" class="btn-action btn-secondary btn-sm">
+                                    <i class="fas fa-edit"></i> Modifier
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-sticky-note"></i>
+                        <p>Aucune note de consultation n'a été enregistrée pour ce patient.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle sidebar
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('main-content');
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('sidebar-collapsed');
+        mainContent.classList.toggle('main-content-expanded');
+    });
+
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+
+    if (mobileMenuToggle) {
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('sidebar-open');
+        });
+    }
+
+    // Tabs functionality
+    const tabItems = document.querySelectorAll('.tab-item');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabItems.forEach(item => {
+        item.addEventListener('click', function() {
+            const tabId = this.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and contents
+            tabItems.forEach(tab => tab.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            
+            // Add active class to current tab and content
+            this.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+});
+</script>
+{% endblock %}

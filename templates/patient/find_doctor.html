@@ -1,0 +1,205 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}HealthConnect - Trouver un médecin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/dashboard.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/find_doctor_improved.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/patient/header.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Topbar (Header fixe) -->
+{% include 'patient/partials/header.html' %}
+
+<div class="dashboard-container">
+    <!-- Sidebar (Menu latéral) -->
+    {% include 'patient/partials/sidebar.html' %}
+
+    <!-- Main Content (Zone principale) -->
+    <div id="main-content" class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Trouver un médecin</h1>
+            <p class="page-subtitle">Consultez la liste des médecins disponibles pour une téléconsultation et réservez un créneau qui vous convient.</p>
+        </div>
+
+        <!-- Barre de filtres améliorée -->
+        <div class="filter-bar">
+            <div style="width: 100%;">
+                <div class="filter-header">
+                    <div class="filter-icon">
+                        <i class="fas fa-sliders-h"></i>
+                    </div>
+                    <h3 class="filter-title">Affinez votre recherche de médecin</h3>
+                </div>
+
+                <form action="{{ url_for('patient.find_doctor') }}" method="GET">
+                    <div class="filter-form">
+                        <div class="filter-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" name="search" placeholder="Rechercher un médecin par nom..." value="{{ request.args.get('search', '') }}">
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-stethoscope"></i> Spécialité
+                            </label>
+                            <select name="speciality" class="filter-select">
+                                <option value="">Toutes les spécialités</option>
+                                {% for speciality in specialities %}
+                                    <option value="{{ speciality }}" {% if selected_speciality == speciality %}selected{% endif %}>{{ speciality }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-euro-sign"></i> Tarif maximum
+                            </label>
+                            <select name="max_fee" class="filter-select">
+                                <option value="">Tous les tarifs</option>
+                                <option value="25" {% if request.args.get('max_fee') == '25' %}selected{% endif %}>Jusqu'à 25€</option>
+                                <option value="50" {% if request.args.get('max_fee') == '50' %}selected{% endif %}>Jusqu'à 50€</option>
+                                <option value="75" {% if request.args.get('max_fee') == '75' %}selected{% endif %}>Jusqu'à 75€</option>
+                                <option value="100" {% if request.args.get('max_fee') == '100' %}selected{% endif %}>Jusqu'à 100€</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">
+                                <i class="fas fa-calendar-alt"></i> Disponibilité
+                            </label>
+                            <select name="availability" class="filter-select">
+                                <option value="">Toutes les disponibilités</option>
+                                <option value="today" {% if request.args.get('availability') == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                                <option value="tomorrow" {% if request.args.get('availability') == 'tomorrow' %}selected{% endif %}>Demain</option>
+                                <option value="this_week" {% if request.args.get('availability') == 'this_week' %}selected{% endif %}>Cette semaine</option>
+                                <option value="next_week" {% if request.args.get('availability') == 'next_week' %}selected{% endif %}>Semaine prochaine</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="submit" class="filter-button">
+                            <i class="fas fa-filter"></i> Appliquer les filtres
+                        </button>
+                        <a href="{{ url_for('patient.find_doctor') }}" class="filter-button secondary">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </a>
+                    </div>
+
+                    {% if selected_speciality or request.args.get('max_fee') or request.args.get('availability') or request.args.get('search') %}
+                    <div class="filter-tags">
+                        {% if selected_speciality %}
+                        <div class="filter-tag">
+                            Spécialité: {{ selected_speciality }} <i class="fas fa-times"></i>
+                        </div>
+                        {% endif %}
+
+                        {% if request.args.get('max_fee') %}
+                        <div class="filter-tag">
+                            Tarif max: {{ request.args.get('max_fee') }}€ <i class="fas fa-times"></i>
+                        </div>
+                        {% endif %}
+
+                        {% if request.args.get('availability') %}
+                        <div class="filter-tag">
+                            Disponibilité:
+                            {% if request.args.get('availability') == 'today' %}Aujourd'hui
+                            {% elif request.args.get('availability') == 'tomorrow' %}Demain
+                            {% elif request.args.get('availability') == 'this_week' %}Cette semaine
+                            {% elif request.args.get('availability') == 'next_week' %}Semaine prochaine
+                            {% endif %}
+                            <i class="fas fa-times"></i>
+                        </div>
+                        {% endif %}
+
+                        {% if request.args.get('search') %}
+                        <div class="filter-tag">
+                            Recherche: {{ request.args.get('search') }} <i class="fas fa-times"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- Grille de médecins optimisée -->
+        <div class="doctors-grid">
+            {% if doctors %}
+                {% for doctor in doctors %}
+                    <div class="doctor-card">
+                        <div class="doctor-header">
+                            <div class="doctor-avatar">
+                                {% if doctor.profile_picture %}
+                                    <img src="{{ url_for('static', filename=doctor.profile_picture) }}" alt="Photo du Dr. {{ doctor.user.last_name }}">
+                                {% else %}
+                                    <img src="{{ url_for('static', filename='images/doctor.svg') }}" alt="Photo par défaut">
+                                {% endif %}
+                            </div>
+                            <div>
+                                <div class="doctor-name">Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</div>
+                                <div class="doctor-specialty">{{ doctor.speciality }}</div>
+                            </div>
+                        </div>
+                        <div class="doctor-body">
+                            <div class="doctor-info">
+                                <div class="info-item">
+                                    <i class="fas fa-briefcase"></i>
+                                    <span>{{ doctor.years_experience }} ans d'expérience</span>
+                                </div>
+                                {% if doctor.consultation_fee %}
+                                <div class="info-item">
+                                    <i class="fas fa-euro-sign"></i>
+                                    <span>{{ doctor.consultation_fee }}€ par consultation</span>
+                                </div>
+                                {% endif %}
+                                <div class="info-item">
+                                    <i class="fas fa-star"></i>
+                                    <span>Excellentes évaluations</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="doctor-footer">
+                            <span class="availability-badge">
+                                <i class="fas fa-check-circle"></i> Disponible
+                            </span>
+                            <a href="{{ url_for('patient.doctor_availability', doctor_id=doctor.id) }}" class="view-btn">
+                                Voir disponibilités <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="grid-column: 1 / -1; text-align: center; padding: 30px; background-color: var(--white); border-radius: var(--border-radius); box-shadow: var(--shadow);">
+                    <i class="fas fa-search" style="font-size: 3rem; color: #e0e0e0; margin-bottom: 15px;"></i>
+                    <h3 style="margin-bottom: 10px;">Aucun médecin disponible</h3>
+                    <p>Aucun médecin disponible ne correspond à vos critères. Veuillez modifier vos filtres ou réessayer plus tard.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Section de conseils compacte -->
+        <div class="tips-section">
+            <div class="tips-header">
+                <div class="tips-icon">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="tips-title">Conseils pour choisir un médecin</h3>
+            </div>
+            <ul class="tips-list">
+                <li><i class="fas fa-check-circle"></i> Vérifiez les spécialités et l'expérience du médecin pour vous assurer qu'il correspond à vos besoins.</li>
+                <li><i class="fas fa-check-circle"></i> Consultez les disponibilités pour trouver un créneau qui vous convient.</li>
+                <li><i class="fas fa-check-circle"></i> Préparez vos questions et documents médicaux avant la consultation.</li>
+                <li><i class="fas fa-check-circle"></i> Assurez-vous d'avoir une connexion internet stable pour la téléconsultation.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/patient/header.js') }}"></script>
+<script src="{{ url_for('static', filename='js/patient/dashboard.js') }}"></script>
+{% endblock %}

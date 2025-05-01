@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}HealthConnect - Télémédecine{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    {% block extra_css %}{% endblock %}
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header / Navigation -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <a href="{{ url_for('index') }}">
+                    <h1>Health<span>Connect</span></h1>
+                    <p class="tagline">Votre santé connectée à l'expertise médicale</p>
+                </a>
+            </div>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="{{ url_for('index') }}" class="active">Accueil</a></li>
+                    <li><a href="{{ url_for('index') }}#about">À propos</a></li>
+                    <li><a href="{{ url_for('index') }}#services">Services</a></li>
+                    <li><a href="{{ url_for('index') }}#features">Fonctionnalités</a></li>
+                    <li><a href="{{ url_for('index') }}#contact">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="auth-buttons">
+                <div class="dropdown">
+                    <button class="btn btn-outline dropdown-toggle">Connexion <i class="fas fa-chevron-down"></i></button>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('auth.login') }}?role=patient"><i class="fas fa-user"></i> Espace Patient</a>
+                        <a href="{{ url_for('auth.login') }}?role=doctor"><i class="fas fa-user-md"></i> Espace Médecin</a>
+                    </div>
+                </div>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">S'inscrire</a>
+            </div>
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+
+    <!-- Call to Action Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>Prêt à prendre soin de votre santé ?</h2>
+            <p>Rejoignez HealthConnect dès aujourd'hui et accédez à des soins médicaux de qualité en quelques clics.</p>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Créer un compte gratuitement</a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <h2>Health<span>Connect</span></h2>
+                    <p>Votre plateforme de télémédecine de confiance</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Liens rapides</h3>
+                    <ul>
+                        <li><a href="{{ url_for('index') }}">Accueil</a></li>
+                        <li><a href="{{ url_for('index') }}#features">Fonctionnalités</a></li>
+                        <li><a href="{{ url_for('index') }}#find-doctor">Trouver un médecin</a></li>
+                        <li><a href="{{ url_for('index') }}#about">À propos</a></li>
+                        <li><a href="{{ url_for('index') }}#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h3>Contact</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> @ENSAM CASABLANCA </p>
+                    <p><i class="fas fa-envelope"></i> himedimakrame05@gmail.com </p>
+                    <p><i class="fas fa-phone"></i> +212 07 01 29 95 92 </p>
+                </div>
+                <div class="footer-social">
+                    <h3>Suivez-nous</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 HealthConnect. Tous droits réservés.</p>
+                <div class="footer-legal">
+                    <a href="#">Mentions légales</a>
+                    <a href="#">Politique de confidentialité</a>
+                    <a href="#">CGU</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,311 @@
+/* Styles pour la section des signaux vitaux */
+
+/* Grille des signaux vitaux */
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.vital-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.vital-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.vital-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.vital-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.vital-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(52, 152, 219, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #3498db;
+}
+
+#heartrate-card .vital-icon {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+#blood-pressure-card .vital-icon {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+#temperature-card .vital-icon {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+}
+
+#oxygen-card .vital-icon {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.vital-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 10px 0;
+    color: #2c3e50;
+}
+
+.vital-unit {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.vital-status {
+    text-align: center;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    background-color: #f8f9fa;
+}
+
+.vital-status.normal,
+.status-normal {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+}
+
+.vital-status.warning,
+.status-warning {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+}
+
+.vital-status.danger,
+.status-abnormal {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+}
+
+/* Graphiques */
+.vital-chart {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 30px;
+    height: 300px;
+}
+
+/* Historique des mesures */
+.vital-history-container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.vital-history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.vital-history-filters {
+    display: flex;
+    gap: 10px;
+}
+
+.vital-history-filters select {
+    padding: 8px 12px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+}
+
+.vital-history-table-container {
+    margin-top: 30px;
+}
+
+.vital-history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.vital-history-table th,
+.vital-history-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.vital-history-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.vital-history-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.vital-history-table tr.abnormal-value {
+    background-color: rgba(231, 76, 60, 0.05);
+}
+
+.vital-history-table .text-center {
+    text-align: center;
+}
+
+/* Seuils personnalisés */
+.vital-thresholds-container {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.section-description {
+    color: #7f8c8d;
+    margin-bottom: 20px;
+}
+
+.vital-thresholds-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.vital-threshold-card {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.vital-threshold-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.vital-threshold-title {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.vital-threshold-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(52, 152, 219, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #3498db;
+}
+
+.vital-threshold-form {
+    margin-bottom: 15px;
+}
+
+.threshold-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.threshold-input-group label {
+    width: 120px;
+    font-weight: 500;
+}
+
+.threshold-input-group input {
+    width: 80px;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.threshold-input-group .unit {
+    margin-left: 10px;
+    color: #7f8c8d;
+}
+
+.btn-save-threshold {
+    width: 100%;
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-save-threshold:hover {
+    background-color: #2980b9;
+}
+
+/* Animation pour les valeurs qui changent */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.value-updated {
+    animation: pulse 0.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vitals-grid,
+    .vital-thresholds-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .vital-history-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .vital-history-filters {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .vital-history-filters select {
+        flex: 1;
+    }
+}

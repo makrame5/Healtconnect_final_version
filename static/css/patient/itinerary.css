@@ -1,0 +1,474 @@
+/* Itinéraire des Hôpitaux & Pharmacies - Styles */
+:root {
+    --primary-color: #2471A3;
+    --secondary-color: #58D68D;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+    --text-color: #333;
+    --text-light: #6c757d;
+    --white: #ffffff;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+
+    /* Couleurs spécifiques */
+    --hospital-color: #3498db;
+    --pharmacy-color: #2ecc71;
+    --clinic-color: #9b59b6;
+    --emergency-color: #e74c3c;
+    --h24-color: #f39c12;
+    --guard-color: #1abc9c;
+}
+
+/* Layout principal */
+.itinerary-page {
+    padding: 20px;
+    background-color: var(--light-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.itinerary-header {
+    margin-bottom: 20px;
+}
+
+.itinerary-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin-bottom: 5px;
+}
+
+.itinerary-header p {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.itinerary-layout {
+    display: flex;
+    gap: 20px;
+}
+
+/* Panneau de filtres */
+.filters-panel {
+    width: 280px;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+}
+
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.filter-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--dark-color);
+}
+
+.filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.filter-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.filter-option input[type="checkbox"] {
+    margin-right: 10px;
+    accent-color: var(--primary-color);
+    width: 16px;
+    height: 16px;
+}
+
+.option-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    color: var(--white);
+    font-size: 0.9rem;
+}
+
+.option-circle.hospital {
+    background-color: var(--hospital-color);
+}
+
+.option-circle.pharmacy {
+    background-color: var(--pharmacy-color);
+}
+
+.option-circle.clinic {
+    background-color: var(--clinic-color);
+}
+
+.option-circle.emergency {
+    background-color: var(--emergency-color);
+}
+
+.option-circle.h24 {
+    background-color: var(--h24-color);
+}
+
+.option-circle.guard {
+    background-color: var(--guard-color);
+}
+
+/* Range slider */
+.distance-slider {
+    position: relative;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 5px;
+    background: #ddd;
+    outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+}
+
+.slider-track {
+    position: relative;
+    height: 4px;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.slider-thumb {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    top: -7px;
+    left: calc(50% - 9px);
+}
+
+/* Contenu principal */
+.itinerary-content {
+    flex: 1;
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.map-container {
+    width: 100%;
+    height: 300px;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    background-color: #e9ecef;
+}
+
+.establishments-section h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--dark-color);
+}
+
+.establishment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.establishment-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    background-color: var(--light-color);
+    transition: var(--transition);
+}
+
+.establishment-card:hover {
+    box-shadow: var(--shadow);
+}
+
+.establishment-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.establishment-icon.hospital {
+    background-color: var(--hospital-color);
+}
+
+.establishment-icon.pharmacy {
+    background-color: var(--pharmacy-color);
+}
+
+.establishment-info {
+    flex: 1;
+}
+
+.establishment-info h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--dark-color);
+}
+
+.establishment-info p {
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+.btn-itinerary {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    border: none;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-itinerary:hover {
+    background-color: #1a5a8a;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+    display: block;
+}
+
+.modal-content {
+    background-color: var(--white);
+    margin: 10% auto;
+    width: 90%;
+    max-width: 800px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--dark-color);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-light);
+}
+
+.modal-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.itinerary-map {
+    height: 300px;
+    border-radius: 8px;
+    background-color: #e9ecef;
+}
+
+.itinerary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.itinerary-info {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.info-item i {
+    color: var(--primary-color);
+}
+
+.transport-modes {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+}
+
+.transport-mode {
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background-color: var(--white);
+    color: var(--text-color);
+}
+
+.transport-mode:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+.transport-mode.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.itinerary-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: var(--light-color);
+}
+
+.step-number {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.step-instruction {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.step-distance {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-left: 10px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .itinerary-layout {
+        flex-direction: column;
+    }
+
+    .filters-panel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .modal-content {
+        margin: 5% auto;
+        width: 95%;
+    }
+
+    .itinerary-info {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 576px) {
+    .establishment-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .establishment-icon {
+        margin-bottom: 10px;
+    }
+
+    .btn-itinerary {
+        margin-top: 10px;
+        align-self: flex-end;
+    }
+}

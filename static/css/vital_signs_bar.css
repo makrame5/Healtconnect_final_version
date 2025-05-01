@@ -1,0 +1,368 @@
+/* Barre de signaux vitaux pour la visio-consultation */
+
+.vital-signs-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background-color: rgba(44, 62, 80, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 15px;
+    z-index: 100;
+    transition: all 0.3s ease;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vital-signs-bar.minimized {
+    height: 20px;
+    padding: 0 10px;
+}
+
+.bar-toggle {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 20px;
+    background-color: rgba(44, 62, 80, 0.85);
+    border-radius: 5px 5px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.vital-sign-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    height: 100%;
+    position: relative;
+}
+
+.vital-sign-section:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 15px;
+    bottom: 15px;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.vital-sign-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    font-size: 18px;
+}
+
+.vital-sign-data {
+    display: flex;
+    flex-direction: column;
+    margin-right: 15px;
+}
+
+.vital-sign-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.vital-sign-unit {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 3px;
+}
+
+.vital-sign-chart {
+    flex: 1;
+    height: 40px;
+    margin-right: 15px;
+    opacity: 0.8;
+}
+
+.vital-sign-status {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* États des signaux vitaux */
+.vital-sign-section.normal .vital-sign-icon {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.vital-sign-section.normal .vital-sign-status {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: #2ecc71;
+}
+
+.vital-sign-section.warning .vital-sign-icon {
+    background-color: rgba(243, 156, 18, 0.2);
+    color: #f39c12;
+}
+
+.vital-sign-section.warning .vital-sign-value {
+    color: #f39c12;
+}
+
+.vital-sign-section.warning .vital-sign-status {
+    background-color: rgba(243, 156, 18, 0.2);
+    color: #f39c12;
+}
+
+.vital-sign-section.danger .vital-sign-icon {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+.vital-sign-section.danger .vital-sign-value {
+    color: #e74c3c;
+}
+
+.vital-sign-section.danger .vital-sign-status {
+    background-color: rgba(231, 76, 60, 0.2);
+    color: #e74c3c;
+}
+
+/* Animation pour les valeurs anormales */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.vital-sign-section.warning .vital-sign-icon,
+.vital-sign-section.danger .vital-sign-icon {
+    animation: pulse 2s infinite;
+}
+
+.vital-sign-section.danger .vital-sign-icon {
+    animation-duration: 1s;
+}
+
+/* Bouton d'historique */
+.history-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.history-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* État minimisé */
+.vital-signs-bar.minimized .vital-sign-section {
+    padding: 0 5px;
+}
+
+.vital-signs-bar.minimized .vital-sign-icon,
+.vital-signs-bar.minimized .vital-sign-chart,
+.vital-signs-bar.minimized .vital-sign-unit,
+.vital-signs-bar.minimized .history-button {
+    display: none;
+}
+
+.vital-signs-bar.minimized .vital-sign-value {
+    font-size: 14px;
+}
+
+.vital-signs-bar.minimized .vital-sign-status {
+    width: 12px;
+    height: 12px;
+    font-size: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .vital-sign-chart {
+        display: none;
+    }
+    
+    .vital-sign-section {
+        padding: 0 10px;
+    }
+    
+    .vital-sign-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+        margin-right: 10px;
+    }
+    
+    .vital-sign-value {
+        font-size: 20px;
+    }
+    
+    .vital-sign-unit {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    .vital-signs-bar {
+        height: 60px;
+    }
+    
+    .vital-sign-data {
+        margin-right: 5px;
+    }
+    
+    .vital-sign-icon {
+        margin-right: 5px;
+    }
+}
+
+/* Animation pour les mises à jour de valeurs */
+@keyframes value-update {
+    0% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.value-updated {
+    animation: value-update 0.5s ease;
+}
+
+/* Popup d'historique */
+.vital-signs-history-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 800px;
+    height: 500px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.vital-signs-history-popup.active {
+    display: flex;
+}
+
+.history-popup-header {
+    padding: 15px 20px;
+    background-color: #2c3e50;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.history-popup-title {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.history-popup-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.history-popup-close:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.history-popup-content {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.history-chart-container {
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+.history-tabs {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 15px;
+}
+
+.history-tab {
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 500;
+    color: #7f8c8d;
+    border-bottom: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.history-tab.active {
+    color: #2c3e50;
+    border-bottom-color: #3498db;
+}
+
+/* Overlay pour le popup */
+.vital-signs-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.vital-signs-overlay.active {
+    display: block;
+}

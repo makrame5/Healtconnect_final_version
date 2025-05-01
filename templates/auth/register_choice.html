@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}HealthConnect - Choisir un type de compte{% endblock %}
+
+{% block content %}
+<section class="register-choice">
+    <div class="container">
+        <div class="section-header">
+            <h2>Créer un compte</h2>
+            <p>Choisissez le type de compte que vous souhaitez créer</p>
+        </div>
+        
+        <div class="role-cards">
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3>Je suis un Patient</h3>
+                <p>Créez un compte pour consulter des médecins, gérer vos rendez-vous et accéder à votre dossier médical.</p>
+                <a href="{{ url_for('auth.register_patient') }}" class="btn btn-primary">Créer un compte Patient</a>
+            </div>
+            
+            <div class="role-card">
+                <div class="role-icon">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <h3>Je suis un Médecin</h3>
+                <p>Créez un compte pour offrir des consultations en ligne, gérer vos patients et votre agenda.</p>
+                <a href="{{ url_for('auth.register_doctor') }}" class="btn btn-secondary">Créer un compte Médecin</a>
+            </div>
+        </div>
+        
+        <div class="login-link">
+            <p>Vous avez déjà un compte ? <a href="{{ url_for('auth.login') }}">Connectez-vous ici</a></p>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .register-choice {
+        padding: 120px 0 80px;
+        background-color: var(--light-color);
+    }
+    
+    .role-cards {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 50px;
+    }
+    
+    .role-card {
+        background-color: var(--white);
+        border-radius: 10px;
+        padding: 40px 30px;
+        text-align: center;
+        box-shadow: var(--shadow);
+        flex: 1;
+        max-width: 400px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .role-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .role-icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+    
+    .role-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: var(--dark-color);
+    }
+    
+    .role-card p {
+        color: var(--text-light);
+        margin-bottom: 25px;
+        min-height: 80px;
+    }
+    
+    .login-link {
+        text-align: center;
+        margin-top: 40px;
+    }
+    
+    .login-link a {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    
+    .login-link a:hover {
+        text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+        .role-cards {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .role-card {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
